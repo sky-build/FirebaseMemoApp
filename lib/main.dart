@@ -1,7 +1,17 @@
 import 'package:firebase_memo_app/View/home/home.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+// firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // TestWidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const MyApp());
 }
 
