@@ -8,8 +8,8 @@
 
 ## 프로젝트 목표
 - Firebase를 사용해 외부 사용자와 공유할 수 있도록 구현
-- GetX 라이브러리 사용
-- MVVM 아키텍처 적용
+- RxDart 라이브러리 사용
+- Bloc 아키텍처 적용
 
 ## Getting Started
 

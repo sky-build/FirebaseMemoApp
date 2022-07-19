@@ -1,26 +1,35 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_memo_app/Model/memo.dart';
 
 class DatabaseManager {
+  static final _instance = DatabaseManager._internal();
+  final _db = FirebaseFirestore.instance;
 
-  static final instance = DatabaseManager._internal();
+  factory DatabaseManager() => _instance;
 
-  DatabaseManager._internal() {
-    // FirebaseApp secondaryApp = Firebase.app('SecondaryApp');
-    // FirebaseDatabase database = FirebaseDatabase.instanceFor(app: secondaryApp);
+  DatabaseManager._internal();
+
+  Future<void> addData(String text) async {
+    final memo = <String, dynamic> {
+      "id": text,
+      "text": text
+    };
+
+    // Add a new document with a generated ID
+    _db.collection("memo").add(memo).then((DocumentReference doc) =>
+        print('DocumentSnapshot added with ID: ${doc.id}'));
+
+    getMemoData();
   }
 
-  void addData() async {
-    // 데이터를 읽기, 쓰기할 때 이 인스턴스가 필요하다.
-    DatabaseReference ref = FirebaseDatabase.instance.ref();
-
-    await ref.set({
-      "name": "John",
-      "age": 18,
-      "address": {
-        "line1": "100 Mountain View"
+  Future<List<Memo>> getMemoData() async {
+    List<Memo> memoList = [];
+    await _db.collection("memo").get().then((event) {
+      for (var doc in event.docs) {
+        final data = Memo.fromJson(doc.data());
+        memoList.add(data);
       }
     });
+    return memoList;
   }
-  // static final shared =
 }
