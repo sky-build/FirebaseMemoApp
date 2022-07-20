@@ -1,13 +1,17 @@
+import 'package:firebase_memo_app/Model/memo.dart';
 import 'package:firebase_memo_app/ViewModel/view_model.dart';
 import 'package:flutter/material.dart';
 
 enum EditMemoType { add, edit }
 
 class EditMemo extends StatelessWidget {
-  EditMemo({Key? key}) : super(key: key);
+  EditMemo({Key? key, required this.memoType, this.memo}) : super(key: key) {
+    _controller.text = memo?.text ?? '';
+  }
 
-  final EditMemoType memoType = EditMemoType.edit;
-  final TextEditingController _controller = TextEditingController(text: 'hihi');
+  final EditMemoType memoType;
+  Memo? memo;
+  final TextEditingController _controller = TextEditingController(text: '');
   final viewModel = ViewModel();
 
   @override
@@ -19,7 +23,13 @@ class EditMemo extends StatelessWidget {
         actions: [
           ElevatedButton(
             onPressed: () async {
-              await viewModel.addDatabase(_controller.text);
+              if (memoType == EditMemoType.add) {
+                await viewModel.addDatabase(_controller.text);
+              } else {
+                memo?.text = _controller.text;
+                await viewModel.updateMemoData(memo!);
+              }
+              Navigator.of(context).pop();
             },
             child: Text(memoType == EditMemoType.edit ? '추가' : '수정'),
           ),

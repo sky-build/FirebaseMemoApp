@@ -18,7 +18,10 @@ class MemoHome extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditMemo()),
+                MaterialPageRoute(
+                    builder: (context) => EditMemo(
+                          memoType: EditMemoType.add,
+                        )),
               );
             },
             icon: const Icon(Icons.add),
@@ -34,8 +37,7 @@ class MemoHome extends StatelessWidget {
                   itemCount: viewModel.memoList.value.length,
                   itemBuilder: (BuildContext buildContext, int index) {
                     final row = viewModel.memoList.value[index];
-                    return MemoTableViewCell(
-                        memoTitle: row.text, generateDate: '오늘');
+                    return MemoTableViewCell(memo: row);
                   });
             }),
       ),
@@ -44,38 +46,56 @@ class MemoHome extends StatelessWidget {
 }
 
 class MemoTableViewCell extends StatelessWidget {
-  const MemoTableViewCell({
-    Key? key,
-    required this.memoTitle,
-    required this.generateDate,
-  }) : super(key: key);
+  MemoTableViewCell({Key? key, required this.memo}) : super(key: key);
 
-  final String memoTitle;
-  final String generateDate;
+  final Memo memo;
+  final viewModel = ViewModel();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Column(
-              children: [
-                Text(
-                  memoTitle,
-                  style: const TextStyle(fontSize: 20),
-                ),
-                Text(
-                  generateDate,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        // 터치했을 떄
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => EditMemo(
+              memoType: EditMemoType.edit,
+              memo: memo,
             ),
           ),
-          const Icon(Icons.star_border),
-        ],
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    memo.text,
+                    style: const TextStyle(fontSize: 20),
+                    maxLines: 1,
+                  ),
+                  Text(
+                    memo.generateDate.toDate().toString(),
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                viewModel.updateMemoState(memo.id);
+              },
+              icon: Icon(
+                  memo.buttonState == false ? Icons.star_border : Icons.star),
+            ),
+          ],
+        ),
       ),
     );
   }

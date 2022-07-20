@@ -7,7 +7,7 @@ class ViewModel {
   static final _instance = ViewModel._internal();
 
   ViewModel._internal() {
-    updateDatabase();
+    _updateDatabase();
     memoList.listen((value) {
       print('값 변경');
     });
@@ -19,14 +19,23 @@ class ViewModel {
 
   BehaviorSubject<List<Memo>> memoList = BehaviorSubject<List<Memo>>.seeded([]);
 
-
   Future<void> addDatabase(String text) async {
     await _database.addData(text);
-    await updateDatabase();
+    await _updateDatabase();
   }
 
-  Future<void> updateDatabase() async {
+  Future<void> updateMemoData(Memo memo) async {
+    await _database.updateMemoData(memo);
+    await _updateDatabase();
+  }
+
+  Future<void> _updateDatabase() async {
     List<Memo> memo = await _database.getMemoData();
     memoList.add(memo);
+  }
+
+  Future<void> updateMemoState(String id) async {
+    await _database.updateMemoState(id);
+    await _updateDatabase();
   }
 }
