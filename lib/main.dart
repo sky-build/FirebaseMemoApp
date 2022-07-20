@@ -1,3 +1,4 @@
+import 'package:firebase_memo_app/View/Setting/setting.dart';
 import 'package:firebase_memo_app/View/home/home.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +37,53 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MemoHome(),
+      home: const NavigationBar(),
+    );
+  }
+}
+
+class NavigationBar extends StatefulWidget {
+  const NavigationBar({Key? key}) : super(key: key);
+
+  @override
+  State<NavigationBar> createState() => _NavigationBarState();
+}
+
+class _NavigationBarState extends State<NavigationBar> {
+  int _selectedIndex = 0;
+  static final List<Widget> _widgetOptions = [
+    MemoHome(),
+    const SettingView(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        enableFeedback: false,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '홈',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: '설정',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.black,
+        onTap: _onItemTapped,
+      ),
     );
   }
 }

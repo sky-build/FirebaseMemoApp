@@ -38,4 +38,8 @@ class ViewModel {
     await _database.updateMemoState(id);
     await _updateDatabase();
   }
+
+  Future<SignUpState> signUpEmail(String email, String password) async {
+    return await _database.signUp(email, password);
+  }
 }

@@ -1,6 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_memo_app/Model/memo.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+
+enum SignUpState { success, alreadyRegister, weakPassword, otherError }
+
+extension SignUpStateToString on SignUpState {
+  String getString() {
+    switch (this) {
+      case SignUpState.success:
+        return '회원가입에 성공했습니다.';
+      case SignUpState.alreadyRegister:
+        return '이미 회원가입을 수행했습니다.';
+      case SignUpState.weakPassword:
+        return '비밀번호 보안정도가 약합니다.';
+      case SignUpState.otherError:
+        return '알수없는 오류가 발생했습니다.';
+    }
+  }
+}
+
 class DatabaseManager {
   static final _instance = DatabaseManager._internal();
   final _db = FirebaseFirestore.instance;
@@ -17,7 +36,6 @@ class DatabaseManager {
       "buttonState": false
     };
 
-    // Add a new document with a generated ID
     _db.collection("memo").add(memo);
 
     getMemoData();
@@ -27,7 +45,8 @@ class DatabaseManager {
     List<Memo> memoList = [];
     await _db
         .collection("memo")
-        .orderBy('buttonState', descending: true)
+        .orderBy('buttonState',
+            descending: true) // 다중 정렬을 수행하려면 파이어베이스에서 인덱스 설정을 해야한다.
         .orderBy('generateDate', descending: true) // 시간 역순으로 정렬
         .get()
         .then((event) {
@@ -57,8 +76,32 @@ class DatabaseManager {
     final data = _db.collection("memo").doc(memo.id);
     // 수정될 데이터 검색
 
-    await data.update({"text": memo.text, "generateDate": Timestamp.now()}).then(
+    await data
+        .update({"text": memo.text, "generateDate": Timestamp.now()}).then(
             (value) => print("DocumentSnapshot successfully updated!"),
-        onError: (e) => print("Error updating document $e"));
+            onError: (e) => print("Error updating document $e"));
+  }
+
+  /// Firebase 회원가입
+  Future<SignUpState> signUp(String emailAddress, String password) async {
+    try {
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
+      );
+      return SignUpState.success;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+        return SignUpState.weakPassword;
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+        return SignUpState.alreadyRegister;
+      }
+    } catch (e) {
+      return SignUpState.otherError;
+    }
+    return SignUpState.otherError;
   }
 }
