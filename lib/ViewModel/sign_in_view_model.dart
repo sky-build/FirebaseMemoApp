@@ -57,9 +57,6 @@ extension UserAccountActions on SignInViewModel {
   Future<bool> userAccountButtonClicked(
       BuildContext context, UserAccountActionState actions) async {
     String snackBarText;
-    print(id);
-    print(pw);
-
     switch (actions) {
       case UserAccountActionState.signUp:
         final result = await signUpEmail();

@@ -1,9 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_memo_app/Enum/user_account_action_state.dart';
 import 'package:flutter/material.dart';
 
-import 'package:firebase_memo_app/Enum/sign_in_state.dart';
-import 'package:firebase_memo_app/Enum/sign_up_state.dart';
+import 'package:firebase_memo_app/Enum/user_account_action_state.dart';
 import 'package:firebase_memo_app/ViewModel/sign_in_view_model.dart';
 
 class SignInView extends StatefulWidget {
@@ -71,27 +68,11 @@ class _SignInViewState extends State<SignInView> {
                 final result = await signInViewModel.userAccountButtonClicked(
                     context, widget.state);
                 if (result) {
-                  Navigator.of(context);
+                  Navigator.pop(context);
                 }
               },
               child: Text(widget.state.getTitle()),
             ),
-            // ElevatedButton(
-            //   onPressed: () async {
-            //     final result = await signInViewModel.signUpEmail();
-            //     // _showSnackBar(context, result.getString());
-            //     if (result == SignUpState.success) {
-            //       Navigator.pop(context);
-            //     }
-            //   },
-            //   child: Text(widget.state.getTitle()),
-            // ),
-            // ElevatedButton(
-            //   onPressed: () async {
-            //     await FirebaseAuth.instance.signOut();
-            //   },
-            //   child: const Text('로그아웃'),
-            // ),
           ],
         ),
       ),

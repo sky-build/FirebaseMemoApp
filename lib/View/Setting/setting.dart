@@ -1,11 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:firebase_memo_app/ViewModel/sign_in_view_model.dart';
 import 'package:firebase_memo_app/Enum/user_account_action_state.dart';
 import 'package:firebase_memo_app/View/Setting/sign_in_view.dart';
 import 'package:firebase_memo_app/ViewModel/view_model.dart';
-import 'package:flutter/material.dart';
 
 class SettingView extends StatelessWidget {
-  const SettingView({Key? key}) : super(key: key);
+  SettingView({Key? key}) : super(key: key);
+
+  final viewModel = ViewModel();
 
   @override
   Widget build(BuildContext context) {
@@ -15,14 +19,29 @@ class SettingView extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: [
-            UserView(),
-            const SettingTableViewCell(state: UserAccountActionState.signUp),
-            const SettingTableViewCell(state: UserAccountActionState.signIn),
-            const SettingTableViewCell(state: UserAccountActionState.signOut),
-          ],
-        ),
+        child: StreamBuilder<User?>(
+            stream: viewModel.userData,
+            builder: (context, snapshot) {
+              if (snapshot.data == null) {
+                return ListView(
+                  children: [
+                    UserView(),
+                    SettingTableViewCell(
+                        state: UserAccountActionState.signUp),
+                    SettingTableViewCell(
+                        state: UserAccountActionState.signIn),
+                  ],
+                );
+              } else {
+                return ListView(
+                  children: [
+                    UserView(),
+                    SettingTableViewCell(
+                        state: UserAccountActionState.signOut),
+                  ],
+                );
+              }
+            }),
       ),
     );
   }
@@ -73,11 +92,10 @@ class UserView extends StatelessWidget {
 }
 
 class SettingTableViewCell extends StatelessWidget {
-  const SettingTableViewCell(
-      {Key? key, required this.state})
-      : super(key: key);
+  SettingTableViewCell({Key? key, required this.state}) : super(key: key);
 
   final UserAccountActionState state;
+  final viewModel = SignInViewModel();
 
   @override
   Widget build(BuildContext context) {
@@ -85,13 +103,14 @@ class SettingTableViewCell extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
       child: GestureDetector(
         onTap: () {
-          print('터치터치');
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) =>
-                    SignInView(state: state)),
-          );
+          if (state == UserAccountActionState.signOut) {
+            viewModel.logOut();
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => SignInView(state: state)),
+            );
+          }
         },
         child: Row(
           children: [
