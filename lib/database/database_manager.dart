@@ -1,33 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_memo_app/Model/memo.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:rxdart/rxdart.dart';
 
-enum SignUpState { success, alreadyRegister, weakPassword, otherError }
-
-extension SignUpStateToString on SignUpState {
-  String getString() {
-    switch (this) {
-      case SignUpState.success:
-        return '회원가입에 성공했습니다.';
-      case SignUpState.alreadyRegister:
-        return '이미 회원가입을 수행했습니다.';
-      case SignUpState.weakPassword:
-        return '비밀번호 보안정도가 약합니다.';
-      case SignUpState.otherError:
-        return '알수없는 오류가 발생했습니다.';
-    }
-  }
-}
+import 'package:firebase_memo_app/Enum/sign_in_state.dart';
+import 'package:firebase_memo_app/Enum/sign_up_state.dart';
+import 'package:firebase_memo_app/Model/memo.dart';
 
 class DatabaseManager {
   static final _instance = DatabaseManager._internal();
   final _db = FirebaseFirestore.instance;
+  final _firebaseAuthInstance = FirebaseAuth.instance;
+  BehaviorSubject<User?> userValue = BehaviorSubject<User?>.seeded(null);
+
+  DatabaseManager._internal() {
+    _firebaseAuthInstance
+        .authStateChanges()
+        .listen((User? user) {
+      if (user == null) {
+        print('User is currently signed out!');
+      } else {
+        print('User is signed in!');
+      }
+      userValue.value = user;
+    });
+  }
 
   factory DatabaseManager() => _instance;
+}
 
-  DatabaseManager._internal();
-
+// 메모 추가 삭제 수정기능
+extension MemoDataProcessExtension on DatabaseManager {
   Future<void> addData(String text) async {
     final memo = <String, dynamic>{
       "id": text,
@@ -81,12 +83,14 @@ class DatabaseManager {
             (value) => print("DocumentSnapshot successfully updated!"),
             onError: (e) => print("Error updating document $e"));
   }
+}
 
+// 회원가입, 로그인
+extension FirebaseAuthExtension on DatabaseManager {
   /// Firebase 회원가입
   Future<SignUpState> signUp(String emailAddress, String password) async {
     try {
-      final credential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await _firebaseAuthInstance.createUserWithEmailAndPassword(
         email: emailAddress,
         password: password,
       );
@@ -103,5 +107,30 @@ class DatabaseManager {
       return SignUpState.otherError;
     }
     return SignUpState.otherError;
+  }
+
+  Future<SignInState> signIn(String emailAddress, String password) async {
+    try {
+      final user = _firebaseAuthInstance.currentUser;
+      print(user?.email!);
+
+      await _firebaseAuthInstance.signInWithEmailAndPassword(
+          email: emailAddress, password: password);
+
+      return SignInState.success;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+        return SignInState.userNotFound;
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+        return SignInState.wrongPassword;
+      }
+      return SignInState.otherError;
+    }
+  }
+
+  Future<void> logOut() async {
+    await _firebaseAuthInstance.signOut();
   }
 }

@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_memo_app/Enum/user_account_action_state.dart';
 import 'package:firebase_memo_app/View/Setting/sign_in_view.dart';
+import 'package:firebase_memo_app/ViewModel/view_model.dart';
 import 'package:flutter/material.dart';
 
 class SettingView extends StatelessWidget {
@@ -13,11 +16,11 @@ class SettingView extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(
-          children: const [
+          children: [
             UserView(),
-            SettingTableViewCell(textValue: '회원가입'),
-            SettingTableViewCell(textValue: '개인정보 수정'),
-            SettingTableViewCell(textValue: '회원탈퇴'),
+            const SettingTableViewCell(state: UserAccountActionState.signUp),
+            const SettingTableViewCell(state: UserAccountActionState.signIn),
+            const SettingTableViewCell(state: UserAccountActionState.signOut),
           ],
         ),
       ),
@@ -26,10 +29,9 @@ class SettingView extends StatelessWidget {
 }
 
 class UserView extends StatelessWidget {
-  const UserView({Key? key}) : super(key: key);
+  UserView({Key? key}) : super(key: key);
 
-  final String userName = '이름';
-  final String userID = 'userID';
+  final viewModel = ViewModel();
 
   @override
   Widget build(BuildContext context) {
@@ -47,19 +49,23 @@ class UserView extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 15.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                userName,
-                style: const TextStyle(fontSize: 20.0),
-              ),
-              Text(
-                userID,
-                style: const TextStyle(fontSize: 15.0),
-              ),
-            ],
-          ),
+          StreamBuilder<User?>(
+              stream: viewModel.userData.stream,
+              builder: (context, snapshot) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      snapshot.data?.email ?? '이름 없음',
+                      style: const TextStyle(fontSize: 20.0),
+                    ),
+                    Text(
+                      snapshot.data?.uid ?? 'UID 없음',
+                      style: const TextStyle(fontSize: 15.0),
+                    ),
+                  ],
+                );
+              }),
         ],
       ),
     );
@@ -67,9 +73,11 @@ class UserView extends StatelessWidget {
 }
 
 class SettingTableViewCell extends StatelessWidget {
-  const SettingTableViewCell({Key? key, required this.textValue}) : super(key: key);
+  const SettingTableViewCell(
+      {Key? key, required this.state})
+      : super(key: key);
 
-  final String textValue;
+  final UserAccountActionState state;
 
   @override
   Widget build(BuildContext context) {
@@ -81,8 +89,8 @@ class SettingTableViewCell extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => SignInView()
-            ),
+                builder: (_) =>
+                    SignInView(state: state)),
           );
         },
         child: Row(
@@ -92,7 +100,7 @@ class SettingTableViewCell extends StatelessWidget {
             ),
             Expanded(
               child: Text(
-                textValue,
+                state.getTitle(),
                 style: const TextStyle(
                   fontSize: 20.0,
                 ),
