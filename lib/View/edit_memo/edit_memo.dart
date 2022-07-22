@@ -1,8 +1,7 @@
+import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/Model/memo.dart';
 import 'package:firebase_memo_app/ViewModel/view_model.dart';
 import 'package:flutter/material.dart';
-
-enum EditMemoType { add, edit }
 
 class EditMemo extends StatelessWidget {
   EditMemo({Key? key, required this.memoType, this.memo}) : super(key: key) {
@@ -18,7 +17,7 @@ class EditMemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(memoType == EditMemoType.edit ? '생성' : '수정'),
+        title: Text(memoType.getTitle()),
         elevation: 0.0,
         actions: [
           ElevatedButton(
@@ -31,7 +30,7 @@ class EditMemo extends StatelessWidget {
               }
               Navigator.of(context).pop();
             },
-            child: Text(memoType == EditMemoType.edit ? '추가' : '수정'),
+            child: Text(memoType.getButtonText()),
           ),
         ],
       ),
