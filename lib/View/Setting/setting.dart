@@ -104,7 +104,7 @@ class SettingTableViewCell extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           if (state == UserAccountActionState.signOut) {
-            viewModel.logOut();
+            viewModel.logOut(context);
           } else {
             Navigator.push(
               context,

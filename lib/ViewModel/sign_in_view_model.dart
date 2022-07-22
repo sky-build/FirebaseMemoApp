@@ -68,10 +68,8 @@ extension UserAccountActions on SignInViewModel {
         snackBarText = result.getString();
         _showSnackBar(context, snackBarText);
         return result == SignInState.success ? true : false;
-      case UserAccountActionState.signOut:
-        await logOut();
-        return true;
     }
+    return false;
   }
 
   Future<SignUpState> signUpEmail() async {
@@ -88,8 +86,9 @@ extension UserAccountActions on SignInViewModel {
     return SignInState.invalidInputType;
   }
 
-  Future<void> logOut() async {
+  Future<void> logOut(BuildContext context) async {
     await _database.logOut();
+    _showSnackBar(context, '로그아웃 되었습니다.');
   }
 
   void _showSnackBar(BuildContext context, String snackBarText) {

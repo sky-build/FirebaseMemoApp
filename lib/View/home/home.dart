@@ -82,7 +82,7 @@ class MemoTableViewCell extends StatelessWidget {
                     maxLines: 1,
                   ),
                   Text(
-                    memo.generateDate.toDate().toString(),
+                    memo.modifyDate.toDate().toString(),
                     style: const TextStyle(fontSize: 16),
                   ),
                 ],

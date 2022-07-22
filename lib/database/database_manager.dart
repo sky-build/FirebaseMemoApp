@@ -5,6 +5,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:firebase_memo_app/Enum/sign_in_state.dart';
 import 'package:firebase_memo_app/Enum/sign_up_state.dart';
 import 'package:firebase_memo_app/Model/memo.dart';
+import 'package:uuid/uuid.dart';
 
 class DatabaseManager {
   static final _instance = DatabaseManager._internal();
@@ -32,10 +33,14 @@ class DatabaseManager {
 extension MemoDataProcessExtension on DatabaseManager {
   Future<void> addData(String text) async {
     final memo = <String, dynamic>{
-      "id": text,
+      "uuid": const Uuid().v4(),
+      "id": userValue.value?.uid,
+      "friendUid": null,
       "text": text,
       "generateDate": Timestamp.now(),
-      "buttonState": false
+      "modifyDate": Timestamp.now(),
+      "buttonState": false,
+      "shareState": false
     };
 
     _db.collection("memo").add(memo);
@@ -49,7 +54,7 @@ extension MemoDataProcessExtension on DatabaseManager {
         .collection("memo")
         .orderBy('buttonState',
             descending: true) // 다중 정렬을 수행하려면 파이어베이스에서 인덱스 설정을 해야한다.
-        .orderBy('generateDate', descending: true) // 시간 역순으로 정렬
+        .orderBy('modifyDate', descending: true) // 시간 역순으로 정렬
         .get()
         .then((event) {
       for (var doc in event.docs) {
@@ -79,7 +84,7 @@ extension MemoDataProcessExtension on DatabaseManager {
     // 수정될 데이터 검색
 
     await data
-        .update({"text": memo.text, "generateDate": Timestamp.now()}).then(
+        .update({"text": memo.text, "modifyDate": Timestamp.now()}).then(
             (value) => print("DocumentSnapshot successfully updated!"),
             onError: (e) => print("Error updating document $e"));
   }
