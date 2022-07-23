@@ -16,6 +16,7 @@ class SettingView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('설정'),
+        elevation: 0.0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

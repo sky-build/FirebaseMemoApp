@@ -1,4 +1,5 @@
 import 'package:firebase_memo_app/View/Setting/setting.dart';
+import 'package:firebase_memo_app/View/Share/share_view.dart';
 import 'package:firebase_memo_app/View/home/home.dart';
 import 'package:flutter/material.dart';
 
@@ -53,6 +54,7 @@ class _NavigationBarState extends State<NavigationBar> {
   int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = [
     MemoHome(),
+    ShareMemoView(),
     SettingView(),
   ];
 
@@ -74,6 +76,10 @@ class _NavigationBarState extends State<NavigationBar> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: '홈',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.share),
+            label: '공유',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

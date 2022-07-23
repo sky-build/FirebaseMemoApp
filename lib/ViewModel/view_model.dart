@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -9,19 +10,26 @@ class ViewModel {
   static final _instance = ViewModel._internal();
   ViewModel._internal() {
     _updateDatabase();
-    memoList.listen((value) {
+    myMemoList.listen((value) {
       print('값 변경');
     });
 
     _database.userValue.listen((value) {
+      print('사용자 데이터가 변경되었다');
       userData.value = value;
+      _updateDatabase();
+    });
+
+    FirebaseFirestore.instance.collection('memo').snapshots().listen((event) {
+      _updateDatabase();
     });
   }
 
   factory ViewModel() => _instance;
 
   final _database = DatabaseManager();
-  BehaviorSubject<List<Memo>> memoList = BehaviorSubject<List<Memo>>.seeded([]);
+  BehaviorSubject<List<Memo>> myMemoList = BehaviorSubject<List<Memo>>.seeded([]);
+  BehaviorSubject<List<Memo>> friendsMemoList = BehaviorSubject<List<Memo>>.seeded([]);
   BehaviorSubject<User?> userData = BehaviorSubject<User?>.seeded(null);
 }
 
@@ -38,7 +46,9 @@ extension MemoActions on ViewModel {
 
   Future<void> _updateDatabase() async {
     List<Memo> memo = await _database.getMemoData();
-    memoList.add(memo);
+    myMemoList.add(memo);
+    memo = await _database.getFriendsMemoData();
+    friendsMemoList.add(memo);
   }
 
   Future<void> updateMemoState(String id) async {

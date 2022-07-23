@@ -1,4 +1,4 @@
-enum EditMemoType { add, edit }
+enum EditMemoType { add, edit, shareData }
 
 extension EditMemoTypeToString on EditMemoType {
   String getTitle() {
@@ -7,6 +7,8 @@ extension EditMemoTypeToString on EditMemoType {
         return '생성';
       case EditMemoType.edit:
         return '수정';
+      case EditMemoType.shareData:
+        return '공유메모';
     }
   }
 
@@ -16,6 +18,8 @@ extension EditMemoTypeToString on EditMemoType {
         return '추가';
       case EditMemoType.edit:
         return '수정';
+      case EditMemoType.shareData:
+        return '공유메모';
     }
   }
 }

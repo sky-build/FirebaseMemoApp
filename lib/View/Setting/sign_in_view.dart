@@ -27,6 +27,7 @@ class _SignInViewState extends State<SignInView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.state.getTitle()),
+        elevation: 0.0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

@@ -14,9 +14,7 @@ class DatabaseManager {
   BehaviorSubject<User?> userValue = BehaviorSubject<User?>.seeded(null);
 
   DatabaseManager._internal() {
-    _firebaseAuthInstance
-        .authStateChanges()
-        .listen((User? user) {
+    _firebaseAuthInstance.authStateChanges().listen((User? user) {
       if (user == null) {
         print('User is currently signed out!');
       } else {
@@ -50,6 +48,27 @@ extension MemoDataProcessExtension on DatabaseManager {
 
   Future<List<Memo>> getMemoData() async {
     List<Memo> memoList = [];
+    if (userValue.value == null) {
+      return memoList;
+    }
+    await _db
+        .collection("memo")
+        .where('id', isEqualTo: userValue.value!.uid) // 내 UID와 동일한 메모만 볼 수 있게
+        .orderBy('buttonState',
+            descending: true) // 다중 정렬을 수행하려면 파이어베이스에서 인덱스 설정을 해야한다.
+        .orderBy('modifyDate', descending: true) // 시간 역순으로 정렬
+        .get()
+        .then((event) {
+      for (var doc in event.docs) {
+        final data = Memo.fromJson(doc.data(), doc.id);
+        memoList.add(data);
+      }
+    });
+    return memoList;
+  }
+
+  Future<List<Memo>> getFriendsMemoData() async {
+    List<Memo> memoList = [];
     await _db
         .collection("memo")
         .orderBy('buttonState',
@@ -59,7 +78,14 @@ extension MemoDataProcessExtension on DatabaseManager {
         .then((event) {
       for (var doc in event.docs) {
         final data = Memo.fromJson(doc.data(), doc.id);
-        memoList.add(data);
+        // 사용자 데이터가 존재하고
+        if (userValue.value != null) {
+          final userId = userValue.value!.uid;
+          // 친구 ID와 같은 경우
+          if (data.friendUid != null && data.friendUid == userId) {
+            memoList.add(data);
+          }
+        }
       }
     });
     return memoList;
@@ -83,10 +109,9 @@ extension MemoDataProcessExtension on DatabaseManager {
     final data = _db.collection("memo").doc(memo.id);
     // 수정될 데이터 검색
 
-    await data
-        .update({"text": memo.text, "modifyDate": Timestamp.now()}).then(
-            (value) => print("DocumentSnapshot successfully updated!"),
-            onError: (e) => print("Error updating document $e"));
+    await data.update({"text": memo.text, "modifyDate": Timestamp.now()}).then(
+        (value) => print("DocumentSnapshot successfully updated!"),
+        onError: (e) => print("Error updating document $e"));
   }
 }
 
@@ -99,6 +124,7 @@ extension FirebaseAuthExtension on DatabaseManager {
         email: emailAddress,
         password: password,
       );
+      // TODO: 여기서 사용자 데이터베이스에 추가
       return SignUpState.success;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
