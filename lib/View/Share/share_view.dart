@@ -68,7 +68,7 @@ class ShareMemoTableViewCell extends StatelessWidget {
                     maxLines: 1,
                   ),
                   Text(
-                    memo.modifyDate.toDate().toString(),
+                    memo.myUpdateDate.toDate().toString(),
                     style: const TextStyle(fontSize: 16),
                   ),
                 ],

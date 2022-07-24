@@ -31,14 +31,16 @@ class DatabaseManager {
 extension MemoDataProcessExtension on DatabaseManager {
   Future<void> addData(String text) async {
     final memo = <String, dynamic>{
-      "uuid": const Uuid().v4(),
       "id": userValue.value?.uid,
       "friendUid": null,
       "text": text,
       "generateDate": Timestamp.now(),
-      "modifyDate": Timestamp.now(),
+      "myUpdateDate": Timestamp.now(),
+      "friendUpdateDate": null,
+      "shareState": "none",
+      "updateConfirm": "none",
       "buttonState": false,
-      "shareState": false
+      "uuid": const Uuid().v4()
     };
 
     _db.collection("memo").add(memo);
@@ -56,7 +58,7 @@ extension MemoDataProcessExtension on DatabaseManager {
         .where('id', isEqualTo: userValue.value!.uid) // 내 UID와 동일한 메모만 볼 수 있게
         .orderBy('buttonState',
             descending: true) // 다중 정렬을 수행하려면 파이어베이스에서 인덱스 설정을 해야한다.
-        .orderBy('modifyDate', descending: true) // 시간 역순으로 정렬
+        .orderBy('myUpdateDate', descending: true) // 시간 역순으로 정렬
         .get()
         .then((event) {
       for (var doc in event.docs) {
@@ -69,11 +71,15 @@ extension MemoDataProcessExtension on DatabaseManager {
 
   Future<List<Memo>> getFriendsMemoData() async {
     List<Memo> memoList = [];
+    if (userValue.value == null) {
+      return memoList;
+    }
     await _db
         .collection("memo")
+        .where('friendUid', isEqualTo: userValue.value!.uid)
         .orderBy('buttonState',
             descending: true) // 다중 정렬을 수행하려면 파이어베이스에서 인덱스 설정을 해야한다.
-        .orderBy('modifyDate', descending: true) // 시간 역순으로 정렬
+        .orderBy('friendUpdateDate', descending: true) // 시간 역순으로 정렬
         .get()
         .then((event) {
       for (var doc in event.docs) {
