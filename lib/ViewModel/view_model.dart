@@ -44,9 +44,4 @@ extension MemoActions on ViewModel {
     List<UserData> userList = await _database.getFriendUsers();
     friendList.add(userList);
   }
-
-  Future<void> updateMemoState(String id) async {
-    await _database.updateMemoState(id);
-    await _updateDatabase();
-  }
 }

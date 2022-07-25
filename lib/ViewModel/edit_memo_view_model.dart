@@ -59,11 +59,11 @@ extension EditMemoActions on EditMemoViewModel {
     await _database.updateFriendMemoData(memo.value!);
   }
 
-  Future<void> enterMemo() async {
+  Future<void> enterMemo(EditMemoType memoType) async {
     if (memo.value == null) {
       return;
     }
-    await _database.enterMemo(memo.value!);
+    await _database.enterMemo(memo.value!, memoType);
   }
 
   Future<void> shareMemoUser(String uid) async {

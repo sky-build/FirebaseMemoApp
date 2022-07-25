@@ -43,12 +43,10 @@ class Memo {
   Timestamp? friendUpdateDate;
   ShareState shareState;
   UpdateConfirmState updateConfirm;
-  bool buttonState;
   String uuid;
 
   Memo(this.id, this.friendUid, this.text, this.generateDate, this.myUpdateDate,
-      this.friendUpdateDate, this.shareState, this.updateConfirm,
-      this.buttonState, this.uuid);
+      this.friendUpdateDate, this.shareState, this.updateConfirm, this.uuid);
 
   Memo.fromJson(Map<String, dynamic> json, this.id)
       : friendUid = json['friendUid'],
@@ -58,6 +56,5 @@ class Memo {
         friendUpdateDate = json['friendUpdateDate'],
         shareState = json['shareState'].toString().changeToShareState(),
         updateConfirm = json['updateConfirm'].toString().changeToUpdateConfirmState(),
-        buttonState = json['buttonState'] ?? false,
         uuid = const Uuid().v4();
 }

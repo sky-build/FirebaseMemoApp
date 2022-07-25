@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/Model/user_data.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -40,7 +41,6 @@ extension MemoDataProcessExtension on DatabaseManager {
       "friendUpdateDate": null,
       "shareState": "none",
       "updateConfirm": "none",
-      "buttonState": false,
       "uuid": const Uuid().v4()
     };
 
@@ -57,8 +57,6 @@ extension MemoDataProcessExtension on DatabaseManager {
     await _db
         .collection("memo")
         .where('id', isEqualTo: userValue.value!.uid) // 내 UID와 동일한 메모만 볼 수 있게
-        .orderBy('buttonState',
-            descending: true) // 다중 정렬을 수행하려면 파이어베이스에서 인덱스 설정을 해야한다.
         .orderBy('myUpdateDate', descending: true) // 시간 역순으로 정렬
         .get()
         .then((event) {
@@ -78,8 +76,6 @@ extension MemoDataProcessExtension on DatabaseManager {
     await _db
         .collection("memo")
         .where('friendUid', isEqualTo: userValue.value!.uid)
-        .orderBy('buttonState',
-            descending: true) // 다중 정렬을 수행하려면 파이어베이스에서 인덱스 설정을 해야한다.
         .orderBy('friendUpdateDate', descending: true) // 시간 역순으로 정렬
         .get()
         .then((event) {
@@ -96,20 +92,6 @@ extension MemoDataProcessExtension on DatabaseManager {
       }
     });
     return memoList;
-  }
-
-  Future<void> updateMemoState(String id) async {
-    final data = _db.collection("memo").doc(id);
-    // 수정될 데이터 검색
-    bool state = false;
-    await data.get().then((value) {
-      final temp = Memo.fromJson(value.data()!, value.id);
-      state = temp.buttonState == false ? true : false;
-    });
-
-    await data.update({"buttonState": state}).then(
-        (value) => print("DocumentSnapshot successfully updated!"),
-        onError: (e) => print("Error updating document $e"));
   }
 
   Future<void> updateMemoData(Memo memo) async {
@@ -139,17 +121,32 @@ extension MemoDataProcessExtension on DatabaseManager {
   Future<void> shareMemo(Memo memo, String uid) async {
     final data = _db.collection("memo").doc(memo.id);
 
-    await data.update({"friendUid": uid}).then(
-        (value) => print("DocumentSnapshot successfully updated!"),
+    await data.update({
+      "friendUid": uid,
+      "updateConfirm": UpdateConfirmState.friend.getString()
+    }).then((value) => print("DocumentSnapshot successfully updated!"),
         onError: (e) => print("Error updating document $e"));
   }
 
-  Future<void> enterMemo(Memo memo) async {
+  Future<void> enterMemo(Memo memo, EditMemoType memoType) async {
     final data = _db.collection("memo").doc(memo.id);
+    bool check = true;
+    await data.get().then((value) {
+      final memoData = Memo.fromJson(value.data()!, value.id);
+      // 내가 최근에 수정했고, 내가 다시 보는 경우 or 친구가 수정했고, 친구가 다시 보는 경우
+      if (memoData.updateConfirm == UpdateConfirmState.friend &&
+              memoType == EditMemoType.edit ||
+          memoData.updateConfirm == UpdateConfirmState.me &&
+              memoType == EditMemoType.shareData) {
+        check = false;
+      }
+    });
 
-    await data.update({"updateConfirm": 'none'}).then(
-            (value) => print("DocumentSnapshot successfully updated!"),
-        onError: (e) => print("Error updating document $e"));
+    if (check == true) {
+      await data.update({"updateConfirm": 'none'}).then(
+              (value) => print("DocumentSnapshot successfully updated!"),
+          onError: (e) => print("Error updating document $e"));
+    }
   }
 }
 
@@ -163,7 +160,6 @@ extension FirebaseAuthExtension on DatabaseManager {
         email: emailAddress,
         password: password,
       );
-      // TODO: 여기서 사용자 데이터베이스에 추가
       addUser(credintial.user);
       return SignUpState.success;
     } on FirebaseAuthException catch (e) {

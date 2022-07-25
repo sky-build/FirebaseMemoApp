@@ -44,7 +44,10 @@ class MemoHome extends StatelessWidget {
                     } else {
                       updateData = false;
                     }
-                    return MemoTableViewCell(memo: row, temp: updateData,);
+                    return MemoTableViewCell(
+                      memo: row,
+                      temp: updateData,
+                    );
                   });
             }),
       ),
@@ -53,7 +56,8 @@ class MemoHome extends StatelessWidget {
 }
 
 class MemoTableViewCell extends StatelessWidget {
-  MemoTableViewCell({Key? key, required this.memo, required this.temp}) : super(key: key);
+  MemoTableViewCell({Key? key, required this.memo, required this.temp})
+      : super(key: key);
 
   final Memo memo;
   final viewModel = ViewModel();
@@ -79,7 +83,6 @@ class MemoTableViewCell extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(temp == true ? Icons.new_label : Icons.new_label_outlined),
             Flexible(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,13 +99,9 @@ class MemoTableViewCell extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              onPressed: () {
-                viewModel.updateMemoState(memo.id);
-              },
-              icon: Icon(
-                  memo.buttonState == false ? Icons.star_border : Icons.star),
-            ),
+            Icon(temp == true
+                ? const IconData(0xe087, fontFamily: 'MaterialIcons')
+                : Icons.new_label_outlined),
           ],
         ),
       ),

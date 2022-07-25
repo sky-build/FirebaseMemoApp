@@ -12,7 +12,7 @@ class EditMemo extends StatelessWidget {
     if (memo != null) {
       editMemoViewModel.memoText.add(memo?.text ?? '');
       editMemoViewModel.memo.add(memo!);
-      editMemoViewModel.enterMemo();
+      editMemoViewModel.enterMemo(memoType);
     }
   }
 
