@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_memo_app/Model/user_data.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:firebase_memo_app/Enum/sign_in_state.dart';
@@ -115,8 +116,39 @@ extension MemoDataProcessExtension on DatabaseManager {
     final data = _db.collection("memo").doc(memo.id);
     // 수정될 데이터 검색
 
-    await data.update({"text": memo.text, "modifyDate": Timestamp.now()}).then(
+    await data.update({
+      "text": memo.text,
+      "myUpdateDate": Timestamp.now(),
+      "updateConfirm": 'friend'
+    }).then((value) => print("DocumentSnapshot successfully updated!"),
+        onError: (e) => print("Error updating document $e"));
+  }
+
+  Future<void> updateFriendMemoData(Memo memo) async {
+    final data = _db.collection("memo").doc(memo.id);
+    // 수정될 데이터 검색
+
+    await data.update({
+      "text": memo.text,
+      "friendUpdateDate": Timestamp.now(),
+      "updateConfirm": 'me'
+    }).then((value) => print("DocumentSnapshot successfully updated!"),
+        onError: (e) => print("Error updating document $e"));
+  }
+
+  Future<void> shareMemo(Memo memo, String uid) async {
+    final data = _db.collection("memo").doc(memo.id);
+
+    await data.update({"friendUid": uid}).then(
         (value) => print("DocumentSnapshot successfully updated!"),
+        onError: (e) => print("Error updating document $e"));
+  }
+
+  Future<void> enterMemo(Memo memo) async {
+    final data = _db.collection("memo").doc(memo.id);
+
+    await data.update({"updateConfirm": 'none'}).then(
+            (value) => print("DocumentSnapshot successfully updated!"),
         onError: (e) => print("Error updating document $e"));
   }
 }
@@ -126,11 +158,13 @@ extension FirebaseAuthExtension on DatabaseManager {
   /// Firebase 회원가입
   Future<SignUpState> signUp(String emailAddress, String password) async {
     try {
-      await _firebaseAuthInstance.createUserWithEmailAndPassword(
+      final credintial =
+          await _firebaseAuthInstance.createUserWithEmailAndPassword(
         email: emailAddress,
         password: password,
       );
       // TODO: 여기서 사용자 데이터베이스에 추가
+      addUser(credintial.user);
       return SignUpState.success;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -169,5 +203,36 @@ extension FirebaseAuthExtension on DatabaseManager {
 
   Future<void> logOut() async {
     await _firebaseAuthInstance.signOut();
+  }
+}
+
+extension UserActionsExtension on DatabaseManager {
+  Future<void> addUser(User? user) async {
+    if (user == null) {
+      return;
+    }
+
+    final userValue = <String, dynamic>{"email": user.email!, "uid": user.uid};
+
+    await _db.collection("user").add(userValue);
+  }
+
+  Future<List<UserData>> getFriendUsers() async {
+    List<UserData> userList = [];
+    if (userValue.value == null) {
+      return userList;
+    }
+    await _db
+        .collection("user")
+        .where('uid', isNotEqualTo: userValue.value!.uid)
+        .get()
+        .then((value) {
+      for (var doc in value.docs) {
+        final data = UserData.fromJson(doc.data());
+        userList.add(data);
+      }
+    });
+
+    return userList;
   }
 }

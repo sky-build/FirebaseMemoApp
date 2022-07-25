@@ -8,7 +8,7 @@ extension EditMemoTypeToString on EditMemoType {
       case EditMemoType.edit:
         return '수정';
       case EditMemoType.shareData:
-        return '공유메모';
+        return '공유된 메모';
     }
   }
 
@@ -19,7 +19,7 @@ extension EditMemoTypeToString on EditMemoType {
       case EditMemoType.edit:
         return '수정';
       case EditMemoType.shareData:
-        return '공유메모';
+        return '수정';
     }
   }
 }

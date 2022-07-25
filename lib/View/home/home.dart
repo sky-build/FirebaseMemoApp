@@ -38,7 +38,13 @@ class MemoHome extends StatelessWidget {
                   itemCount: viewModel.myMemoList.value.length,
                   itemBuilder: (BuildContext buildContext, int index) {
                     final row = viewModel.myMemoList.value[index];
-                    return MemoTableViewCell(memo: row);
+                    bool updateData;
+                    if (row.updateConfirm == UpdateConfirmState.me) {
+                      updateData = true;
+                    } else {
+                      updateData = false;
+                    }
+                    return MemoTableViewCell(memo: row, temp: updateData,);
                   });
             }),
       ),
@@ -47,10 +53,11 @@ class MemoHome extends StatelessWidget {
 }
 
 class MemoTableViewCell extends StatelessWidget {
-  MemoTableViewCell({Key? key, required this.memo}) : super(key: key);
+  MemoTableViewCell({Key? key, required this.memo, required this.temp}) : super(key: key);
 
   final Memo memo;
   final viewModel = ViewModel();
+  final bool temp;
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +79,7 @@ class MemoTableViewCell extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Icon(temp == true ? Icons.new_label : Icons.new_label_outlined),
             Flexible(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
