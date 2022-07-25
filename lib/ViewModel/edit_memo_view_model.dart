@@ -11,7 +11,7 @@ class EditMemoViewModel {
   factory EditMemoViewModel() => _instance;
 
   final _database = DatabaseManager();
-  BehaviorSubject<String> memoData = BehaviorSubject<String>.seeded('');
+  BehaviorSubject<String> memoText = BehaviorSubject<String>.seeded('');
   BehaviorSubject<Memo?> memo = BehaviorSubject<Memo?>.seeded(null);
 }
 
@@ -27,17 +27,29 @@ extension EditMemoActions on EditMemoViewModel {
     }
   }
 
+  Future<void> memoEditButtonClicked(EditMemoType memoType) async {
+    switch (memoType) {
+      case EditMemoType.add:
+        return await addDatabase();
+      case EditMemoType.edit:
+        return await updateMemoData();
+      case EditMemoType.shareData:
+        return await updateFriendMemoData();
+    }
+  }
+
   Future<void> addDatabase() async {
-    await _database.addData(memoData.value);
-    await _updateDatabase();
+    await _database.addData(memoText.value);
   }
 
   Future<void> updateMemoData() async {
     if (memo.value == null) {
       return;
     }
-    await _database.updateMemoData(memo.value!);
-    await _updateDatabase();
+    final changeMemo = memo.value!;
+    changeMemo.text = memoText.value;
+
+    await _database.updateMemoData(changeMemo);
   }
 
   Future<void> updateFriendMemoData() async {
@@ -45,7 +57,6 @@ extension EditMemoActions on EditMemoViewModel {
       return;
     }
     await _database.updateFriendMemoData(memo.value!);
-    await _updateDatabase();
   }
 
   Future<void> enterMemo() async {
@@ -53,23 +64,12 @@ extension EditMemoActions on EditMemoViewModel {
       return;
     }
     await _database.enterMemo(memo.value!);
-    await _updateDatabase();
   }
 
-  Future<void> _updateDatabase() async {
-    // List<Memo> memo = await _database.getMemoData();
-    // myMemoList.add(memo);
-    // memo = await _database.getFriendsMemoData();
-    // friendsMemoList.add(memo);
-  }
-
-  Future<void> updateMemoState(String id) async {
-    await _database.updateMemoState(id);
-    await _updateDatabase();
-  }
-
-  Future<void> shareMemoUser(Memo memo, String uid) async {
-    await _database.shareMemo(memo, uid);
-    await _updateDatabase();
+  Future<void> shareMemoUser(String uid) async {
+    if (memo.value == null) {
+      return;
+    }
+    await _database.shareMemo(memo.value!, uid);
   }
 }

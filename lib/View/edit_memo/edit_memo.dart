@@ -10,9 +10,9 @@ class EditMemo extends StatelessWidget {
     _controller.text = memo?.text ?? '';
     // TODO: 나중에 BloC 패턴쓰면 Bloc 클래스에서 ViewModel로 직접 값 넘겨주는것도 가능할것 같다.
     if (memo != null) {
-      viewModel.memoText.value = memo!.text;
-      viewModel.memo.value = memo!;
-      viewModel.enterMemo(memo!);
+      editMemoViewModel.memoText.add(memo?.text ?? '');
+      editMemoViewModel.memo.add(memo!);
+      editMemoViewModel.enterMemo();
     }
   }
 
@@ -31,9 +31,6 @@ class EditMemo extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
-              for (var element in viewModel.friendList.value) {
-                print('${element.uid}, ${element.email}');
-              }
               showDialog(
                   context: context,
                   builder: (BuildContext btx) {
@@ -50,7 +47,7 @@ class EditMemo extends StatelessWidget {
                             return GestureDetector(
                               onTap: () {
                                 if (memo != null) {
-                                  viewModel.shareMemoUser(memo!, row.uid);
+                                  editMemoViewModel.shareMemoUser(row.uid);
                                 }
                                 Navigator.pop(context);
                               },
@@ -82,21 +79,7 @@ class EditMemo extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
-              // // TODO: ViewModel에서 처리하도록 변경
-              switch (memoType) {
-                case EditMemoType.add:
-                  await viewModel.addDatabase(_controller.text);
-                  break;
-                case EditMemoType.edit:
-                  memo?.text = _controller.text;
-                  await viewModel.updateMemoData(memo!);
-                  break;
-                case EditMemoType.shareData:
-                  memo?.text = _controller.text;
-                  memo?.friendUpdateDate = Timestamp.now();
-                  await viewModel.updateFriendMemoData(memo!);
-                  break;
-              }
+              editMemoViewModel.memoEditButtonClicked(memoType);
               Navigator.of(context).pop();
             },
             child: Text(
@@ -110,8 +93,7 @@ class EditMemo extends StatelessWidget {
         padding: const EdgeInsets.all(10.0),
         child: TextField(
           onChanged: (value) {
-            editMemoViewModel.memoData.value = value;
-            viewModel.memoText.value = value;
+            editMemoViewModel.memoText.add(value);
           },
           controller: _controller,
           keyboardType: TextInputType.multiline,
