@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:firebase_memo_app/Enum/user_account_action_state.dart';
-import 'package:firebase_memo_app/ViewModel/sign_in_view_model.dart';
+import 'package:firebase_memo_app/view_model/sign_in_view_model.dart';
 
 class SignInView extends StatefulWidget {
   SignInView({Key? key, required this.state}) : super(key: key);

@@ -1,33 +1,20 @@
 import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
-import 'package:firebase_memo_app/Model/memo.dart';
+import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/View/edit_memo/edit_memo.dart';
-import 'package:firebase_memo_app/ViewModel/view_model.dart';
+import 'package:firebase_memo_app/view_model/view_model.dart';
 import 'package:flutter/material.dart';
 
-class MemoHome extends StatelessWidget {
-  MemoHome({Key? key}) : super(key: key);
+class ShareMemoView extends StatelessWidget {
+  ShareMemoView({Key? key}) : super(key: key);
+
   final viewModel = ViewModel();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('홈'),
+        title: const Text('공유된 메모'),
         elevation: 0.0,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => EditMemo(
-                          memoType: EditMemoType.add,
-                        )),
-              );
-            },
-            icon: const Icon(Icons.add),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -35,33 +22,21 @@ class MemoHome extends StatelessWidget {
             stream: viewModel.myMemoList,
             builder: (context, snapshot) {
               return ListView.builder(
-                  itemCount: viewModel.myMemoList.value.length,
+                  itemCount: viewModel.friendsMemoList.value.length,
                   itemBuilder: (BuildContext buildContext, int index) {
-                    final row = viewModel.myMemoList.value[index];
-                    bool updateData;
-                    if (row.updateConfirm == UpdateConfirmState.me) {
-                      updateData = true;
-                    } else {
-                      updateData = false;
-                    }
-                    return MemoTableViewCell(
-                      memo: row,
-                      temp: updateData,
-                    );
+                    final row = viewModel.friendsMemoList.value[index];
+                    return ShareMemoTableViewCell(memo: row);
                   });
             }),
-      ),
+      )
     );
   }
 }
 
-class MemoTableViewCell extends StatelessWidget {
-  MemoTableViewCell({Key? key, required this.memo, required this.temp})
-      : super(key: key);
+class ShareMemoTableViewCell extends StatelessWidget {
+  const ShareMemoTableViewCell({Key? key, required this.memo}) : super(key: key);
 
   final Memo memo;
-  final viewModel = ViewModel();
-  final bool temp;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +47,7 @@ class MemoTableViewCell extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (_) => EditMemo(
-              memoType: EditMemoType.edit,
+              memoType: EditMemoType.shareData,
               memo: memo,
             ),
           ),
@@ -99,9 +74,6 @@ class MemoTableViewCell extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(temp == true
-                ? const IconData(0xe087, fontFamily: 'MaterialIcons')
-                : Icons.new_label_outlined),
           ],
         ),
       ),

@@ -1,4 +1,4 @@
-import 'package:firebase_memo_app/Model/memo.dart';
+import 'package:firebase_memo_app/repository/memo.dart';
 
 extension InputValidate on String {
   //이메일 포맷 검증

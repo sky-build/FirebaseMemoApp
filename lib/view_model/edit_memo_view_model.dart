@@ -1,5 +1,5 @@
 import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
-import 'package:firebase_memo_app/Model/memo.dart';
+import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/database/database_manager.dart';
 import 'package:rxdart/rxdart.dart';
 

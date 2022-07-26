@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_memo_app/Model/user_data.dart';
+import 'package:firebase_memo_app/repository/user_data.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:firebase_memo_app/Model/memo.dart';
+import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/database/database_manager.dart';
 
 class ViewModel {

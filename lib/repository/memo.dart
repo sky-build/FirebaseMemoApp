@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_memo_app/Extensions/extension_string.dart';
+import 'package:firebase_memo_app/extensions/extension_string.dart';
 import 'package:uuid/uuid.dart';
 
 enum ShareState { none, request, accept, reject }
@@ -55,6 +55,7 @@ class Memo {
         myUpdateDate = json['myUpdateDate'],
         friendUpdateDate = json['friendUpdateDate'],
         shareState = json['shareState'].toString().changeToShareState(),
-        updateConfirm = json['updateConfirm'].toString().changeToUpdateConfirmState(),
+        updateConfirm =
+            json['updateConfirm'].toString().changeToUpdateConfirmState(),
         uuid = const Uuid().v4();
 }

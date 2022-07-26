@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:firebase_memo_app/ViewModel/sign_in_view_model.dart';
+import 'package:firebase_memo_app/view_model/sign_in_view_model.dart';
 import 'package:firebase_memo_app/Enum/user_account_action_state.dart';
 import 'package:firebase_memo_app/View/Setting/sign_in_view.dart';
-import 'package:firebase_memo_app/ViewModel/view_model.dart';
+import 'package:firebase_memo_app/view_model/view_model.dart';
 
 class SettingView extends StatelessWidget {
   SettingView({Key? key}) : super(key: key);

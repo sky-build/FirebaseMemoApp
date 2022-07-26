@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
-import 'package:firebase_memo_app/Model/user_data.dart';
+import 'package:firebase_memo_app/repository/user_data.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:firebase_memo_app/Enum/sign_in_state.dart';
 import 'package:firebase_memo_app/Enum/sign_up_state.dart';
-import 'package:firebase_memo_app/Model/memo.dart';
+import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:uuid/uuid.dart';
 
 class DatabaseManager {
