@@ -1,32 +1,26 @@
 import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
-import 'package:firebase_memo_app/bloc/edit_memo_bloc.dart';
-import 'package:firebase_memo_app/view_model/edit_memo_view_model.dart';
-import 'package:firebase_memo_app/view_model/view_model.dart';
+import 'package:firebase_memo_app/view_model/edit_memo_bloc.dart';
+import 'package:firebase_memo_app/view_model/users_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EditMemo extends StatelessWidget {
-  EditMemo({Key? key, required this.memoType, this.memo}) : super(key: key) {
+  EditMemo({Key? key, required this.memoType, Memo? memo}) : super(key: key) {
     _controller.text = memo?.text ?? '';
     // TODO: 로직 ViewModel로 이동
     if (memo != null) {
-      editMemoViewModel.memoText.add(memo?.text ?? '');
-      editMemoViewModel.memo.add(memo!);
-      editMemoViewModel.enterMemo(memoType);
+      editMemoBloc.setMemo(memo);
+      editMemoBloc.enterMemo(memoType);
     }
   }
 
   final EditMemoType memoType;
-  Memo? memo;
   final TextEditingController _controller = TextEditingController(text: '');
-  final viewModel = ViewModel();
-  final editMemoViewModel = EditMemoViewModel();
+  final editMemoBloc = EditMemoBloc();
+  final usersBloc = UsersBloc();
 
   @override
   Widget build(BuildContext context) {
-    final _counterBloc = BlocProvider.of<BlocEditMemo>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(memoType.getTitle()),
@@ -48,14 +42,12 @@ class EditMemo extends StatelessWidget {
                           height: 300.0,
                           width: 300.0,
                           child: ListView.builder(
-                            itemCount: viewModel.friendList.value.length,
+                            itemCount: usersBloc.getFriendCount(),
                             itemBuilder: (BuildContext context, int index) {
-                              final row = viewModel.friendList.value[index];
+                              final row = usersBloc.getFriendByIndex(index);
                               return GestureDetector(
                                 onTap: () {
-                                  if (memo != null) {
-                                    editMemoViewModel.shareMemoUser(row.uid);
-                                  }
+                                  editMemoBloc.shareMemoUser(row.uid);
                                   Navigator.pop(context);
                                 },
                                 child: Padding(
@@ -87,7 +79,7 @@ class EditMemo extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
-              editMemoViewModel.memoEditButtonClicked(memoType);
+              await editMemoBloc.editMemoButtonClicked(memoType);
               Navigator.of(context).pop();
             },
             child: Text(
@@ -100,9 +92,8 @@ class EditMemo extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: TextField(
-          onChanged: (value) {
-            editMemoViewModel.memoText.add(value);
-            _counterBloc.add(BlocState.add);
+          onChanged: (text) {
+            editMemoBloc.updateText(text);
           },
           controller: _controller,
           keyboardType: TextInputType.multiline,

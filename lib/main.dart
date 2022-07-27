@@ -1,12 +1,10 @@
 import 'package:firebase_memo_app/View/Setting/setting.dart';
 import 'package:firebase_memo_app/View/Share/share_view.dart';
 import 'package:firebase_memo_app/View/home/home.dart';
-import 'package:firebase_memo_app/bloc/edit_memo_bloc.dart';
 import 'package:flutter/material.dart';
 
 // firebase
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -26,9 +24,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<BlocEditMemo>(
-      create: (_) => BlocEditMemo(),
-      child: MaterialApp(
+    return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
@@ -44,7 +40,6 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         home: const NavigationBar(),
-      ),
     );
   }
 }

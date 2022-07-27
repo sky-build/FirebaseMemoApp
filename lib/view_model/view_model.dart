@@ -32,7 +32,6 @@ class ViewModel {
   BehaviorSubject<List<Memo>> myMemoList = BehaviorSubject<List<Memo>>.seeded([]);
   BehaviorSubject<List<Memo>> friendsMemoList = BehaviorSubject<List<Memo>>.seeded([]);
   BehaviorSubject<User?> userData = BehaviorSubject<User?>.seeded(null);
-  BehaviorSubject<List<UserData>> friendList = BehaviorSubject<List<UserData>>.seeded([]);
 }
 
 extension MemoActions on ViewModel {
@@ -41,7 +40,5 @@ extension MemoActions on ViewModel {
     myMemoList.add(memo);
     memo = await _database.getFriendsMemoData();
     friendsMemoList.add(memo);
-    List<UserData> userList = await _database.getFriendUsers();
-    friendList.add(userList);
   }
 }

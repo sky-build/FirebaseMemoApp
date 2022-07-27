@@ -3,31 +3,33 @@ import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/database/database_manager.dart';
 import 'package:rxdart/rxdart.dart';
 
-class EditMemoViewModel {
+class EditMemoBloc {
 
-  static final _instance = EditMemoViewModel._internal();
-  EditMemoViewModel._internal();
+  static final _instance = EditMemoBloc._internal();
+  EditMemoBloc._internal();
 
-  factory EditMemoViewModel() => _instance;
+  factory EditMemoBloc() => _instance;
 
   final _database = DatabaseManager();
   BehaviorSubject<String> memoText = BehaviorSubject<String>.seeded('');
   BehaviorSubject<Memo?> memo = BehaviorSubject<Memo?>.seeded(null);
 }
 
-extension EditMemoActions on EditMemoViewModel {
-  Future<void> editMemoButtonClicked(EditMemoType memoType) async {
-    switch (memoType) {
-      case EditMemoType.add:
-        return await addDatabase();
-      case EditMemoType.edit:
-        return await updateMemoData();
-      case EditMemoType.shareData:
-        return await updateFriendMemoData();
+extension MemoDataUpdate on EditMemoBloc {
+  void setMemo(Memo? newMemo) {
+    if (newMemo != null) {
+      memo.sink.add(newMemo);
+      updateText(newMemo.text);
     }
   }
 
-  Future<void> memoEditButtonClicked(EditMemoType memoType) async {
+  void updateText(String text) {
+    memoText.sink.add(text);
+  }
+}
+
+extension EditMemoActions on EditMemoBloc {
+  Future<void> editMemoButtonClicked(EditMemoType memoType) async {
     switch (memoType) {
       case EditMemoType.add:
         return await addDatabase();
