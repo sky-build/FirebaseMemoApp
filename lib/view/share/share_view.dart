@@ -1,13 +1,13 @@
 import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/View/edit_memo/edit_memo.dart';
-import 'package:firebase_memo_app/view_model/view_model.dart';
+import 'package:firebase_memo_app/view_model/memo_data_bloc.dart';
 import 'package:flutter/material.dart';
 
 class ShareMemoView extends StatelessWidget {
   ShareMemoView({Key? key}) : super(key: key);
 
-  final viewModel = ViewModel();
+  final memoDataBloc = MemoDataBloc();
 
   @override
   Widget build(BuildContext context) {
@@ -19,24 +19,36 @@ class ShareMemoView extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: StreamBuilder<List<Memo>>(
-            stream: viewModel.myMemoList,
+            stream: memoDataBloc.friendsMemoList,
             builder: (context, snapshot) {
               return ListView.builder(
-                  itemCount: viewModel.friendsMemoList.value.length,
+                  itemCount: memoDataBloc.friendsMemoList.value.length,
                   itemBuilder: (BuildContext buildContext, int index) {
-                    final row = viewModel.friendsMemoList.value[index];
-                    return ShareMemoTableViewCell(memo: row);
+                    final row = memoDataBloc.friendsMemoList.value[index];
+                    bool updateData;
+                    if (row.updateConfirm == UpdateConfirmState.friend) {
+                      updateData = true;
+                    } else {
+                      updateData = false;
+                    }
+                    return ShareMemoTableViewCell(
+                      memo: row,
+                      temp: updateData,
+                    );
                   });
             }),
-      )
+      ),
     );
   }
 }
 
 class ShareMemoTableViewCell extends StatelessWidget {
-  const ShareMemoTableViewCell({Key? key, required this.memo}) : super(key: key);
+  ShareMemoTableViewCell({Key? key, required this.memo, required this.temp})
+      : super(key: key);
 
   final Memo memo;
+  final memoDataBloc = MemoDataBloc();
+  final bool temp;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +59,7 @@ class ShareMemoTableViewCell extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (_) => EditMemo(
-              memoType: EditMemoType.shareData,
+              memoType: EditMemoType.edit,
               memo: memo,
             ),
           ),
@@ -72,6 +84,13 @@ class ShareMemoTableViewCell extends StatelessWidget {
                     style: const TextStyle(fontSize: 16),
                   ),
                 ],
+              ),
+            ),
+            Visibility(
+              visible: memo.updateConfirm == UpdateConfirmState.friend,
+              child: const Icon(
+                IconData(0xe087, fontFamily: 'MaterialIcons'),
+                color: Colors.redAccent,
               ),
             ),
           ],

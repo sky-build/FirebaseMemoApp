@@ -1,23 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_memo_app/repository/user_data.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/database/database_manager.dart';
 
-class ViewModel {
+class MemoDataBloc {
 
-  static final _instance = ViewModel._internal();
-  ViewModel._internal() {
+  static final _instance = MemoDataBloc._internal();
+  MemoDataBloc._internal() {
     _updateDatabase();
     myMemoList.listen((value) {
       print('값 변경');
     });
 
-    _database.userValue.listen((value) {
-      print('사용자 데이터가 변경되었다');
-      userData.value = value;
+    _database.userDataChanged().listen((event) {
+      userData.sink.add(event);
       _updateDatabase();
     });
 
@@ -26,7 +24,7 @@ class ViewModel {
     });
   }
 
-  factory ViewModel() => _instance;
+  factory MemoDataBloc() => _instance;
 
   final _database = DatabaseManager();
   BehaviorSubject<List<Memo>> myMemoList = BehaviorSubject<List<Memo>>.seeded([]);
@@ -34,7 +32,7 @@ class ViewModel {
   BehaviorSubject<User?> userData = BehaviorSubject<User?>.seeded(null);
 }
 
-extension MemoActions on ViewModel {
+extension MemoActions on MemoDataBloc {
   Future<void> _updateDatabase() async {
     List<Memo> memo = await _database.getMemoData();
     myMemoList.add(memo);

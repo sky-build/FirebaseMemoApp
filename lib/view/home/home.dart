@@ -1,12 +1,12 @@
 import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/View/edit_memo/edit_memo.dart';
-import 'package:firebase_memo_app/view_model/view_model.dart';
+import 'package:firebase_memo_app/view_model/memo_data_bloc.dart';
 import 'package:flutter/material.dart';
 
 class MemoHome extends StatelessWidget {
   MemoHome({Key? key}) : super(key: key);
-  final viewModel = ViewModel();
+  final memoDataBloc = MemoDataBloc();
 
   @override
   Widget build(BuildContext context) {
@@ -15,30 +15,42 @@ class MemoHome extends StatelessWidget {
         title: const Text('홈'),
         elevation: 0.0,
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => EditMemo(
-                          memoType: EditMemoType.add,
-                        )),
-              );
-            },
-            icon: const Icon(Icons.add),
+          Visibility(
+            visible: memoDataBloc.userData.value != null,
+            child: IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EditMemo(
+                            memoType: EditMemoType.add,
+                          )),
+                );
+              },
+              icon: const Icon(Icons.add),
+            ),
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: StreamBuilder<List<Memo>>(
-            stream: viewModel.myMemoList,
+            stream: memoDataBloc.myMemoList,
             builder: (context, snapshot) {
+              // if (snapshot.data != null && snapshot.data!.isEmpty) {
+              //   return const Center(
+              //     child: Text(
+              //       '로그인을 먼저 해주세요.',
+              //       style: TextStyle(
+              //         fontSize: 20.0,
+              //       ),
+              //     ),
+              //   );
+              // }
               return ListView.builder(
-                  itemCount: viewModel.myMemoList.value.length,
+                  itemCount: memoDataBloc.myMemoList.value.length,
                   itemBuilder: (BuildContext buildContext, int index) {
-                    final row = viewModel.myMemoList.value[index];
-                    // TODO: MemoTableViewCell 클래스로 로직 이동하거나, ViewModel로 이동
+                    final row = memoDataBloc.myMemoList.value[index];
                     bool updateData;
                     if (row.updateConfirm == UpdateConfirmState.me) {
                       updateData = true;
@@ -61,7 +73,7 @@ class MemoTableViewCell extends StatelessWidget {
       : super(key: key);
 
   final Memo memo;
-  final viewModel = ViewModel();
+  final memoDataBloc = MemoDataBloc();
   final bool temp;
 
   @override
@@ -101,7 +113,7 @@ class MemoTableViewCell extends StatelessWidget {
               ),
             ),
             Visibility(
-              visible: memo.updateConfirm == UpdateConfirmState.me,
+              visible: temp,
               child: const Icon(
                 IconData(0xe087, fontFamily: 'MaterialIcons'),
                 color: Colors.redAccent,

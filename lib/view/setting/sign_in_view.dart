@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:firebase_memo_app/Enum/user_account_action_state.dart';
-import 'package:firebase_memo_app/view_model/sign_in_view_model.dart';
+import 'package:firebase_memo_app/view_model/user_bloc.dart';
 
 class SignInView extends StatefulWidget {
   SignInView({Key? key, required this.state}) : super(key: key);
@@ -13,13 +13,13 @@ class SignInView extends StatefulWidget {
 
 class _SignInViewState extends State<SignInView> {
   bool passwordVisibleState = false;
-  final signInViewModel = SignInViewModel();
+  final userBloc = UserBloc();
 
   @override
   void initState() {
     super.initState();
     // 텍스트필드 초기화
-    signInViewModel.initTextField();
+    userBloc.initTextField();
   }
 
   @override
@@ -36,14 +36,14 @@ class _SignInViewState extends State<SignInView> {
             TextField(
               keyboardType: TextInputType.emailAddress,
               onChanged: (value) {
-                signInViewModel.updateID(value);
+                userBloc.updateID(value);
               },
             ),
             TextField(
               obscureText: !passwordVisibleState,
               obscuringCharacter: "*",
               onChanged: (value) {
-                signInViewModel.updatePW(value);
+                userBloc.updatePW(value);
               },
             ),
             Row(
@@ -66,7 +66,7 @@ class _SignInViewState extends State<SignInView> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final result = await signInViewModel.userAccountButtonClicked(
+                final result = await userBloc.userAccountButtonClicked(
                     context, widget.state);
                 if (result) {
                   Navigator.pop(context);

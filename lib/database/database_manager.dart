@@ -27,11 +27,19 @@ class DatabaseManager {
   }
 
   factory DatabaseManager() => _instance;
+
+  Stream<User?> userDataChanged() {
+    return _firebaseAuthInstance.authStateChanges();
+  }
 }
 
 // 메모 추가 삭제 수정기능
 extension MemoDataProcessExtension on DatabaseManager {
   Future<void> addData(String text) async {
+    if (userValue.value == null) {
+      return;
+    }
+
     final memo = <String, dynamic>{
       "id": userValue.value?.uid,
       "friendUid": null,
@@ -54,6 +62,7 @@ extension MemoDataProcessExtension on DatabaseManager {
     if (userValue.value == null) {
       return memoList;
     }
+
     await _db
         .collection("memo")
         .where('id', isEqualTo: userValue.value!.uid) // 내 UID와 동일한 메모만 볼 수 있게

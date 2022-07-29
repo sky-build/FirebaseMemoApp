@@ -3,26 +3,24 @@ import 'package:firebase_memo_app/database/database_manager.dart';
 import 'package:firebase_memo_app/repository/user_data.dart';
 import 'package:rxdart/rxdart.dart';
 
-class UsersBloc {
-  static final _instance = UsersBloc._internal();
-  UsersBloc._internal() {
+class FriendsBloc {
+  static final _instance = FriendsBloc._internal();
+  FriendsBloc._internal() {
     FirebaseFirestore.instance.collection('user').snapshots().listen((event) {
       updateFriendList();
     });
   }
     final _database = DatabaseManager();
 
-  factory UsersBloc() => _instance;
+  factory FriendsBloc() => _instance;
   
   BehaviorSubject<List<UserData>> friendList = BehaviorSubject<List<UserData>>.seeded([]);
+}
 
+extension FriendUserExtension on FriendsBloc {
   void updateFriendList() async {
-    List<UserData> userList = await _database.getFriendUsers();
+    final userList = await _database.getFriendUsers();
     friendList.sink.add(userList);
-  }
-
-  Stream<List<UserData>> getFriendList() {
-    return friendList.stream;
   }
 
   int getFriendCount() {
@@ -33,4 +31,3 @@ class UsersBloc {
     return friendList.value[index];
   }
 }
-

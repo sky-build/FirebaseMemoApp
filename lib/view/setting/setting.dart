@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:firebase_memo_app/view_model/sign_in_view_model.dart';
+import 'package:firebase_memo_app/view_model/user_bloc.dart';
 import 'package:firebase_memo_app/Enum/user_account_action_state.dart';
 import 'package:firebase_memo_app/View/Setting/sign_in_view.dart';
-import 'package:firebase_memo_app/view_model/view_model.dart';
+import 'package:firebase_memo_app/view_model/memo_data_bloc.dart';
 
 class SettingView extends StatelessWidget {
   SettingView({Key? key}) : super(key: key);
 
-  final viewModel = ViewModel();
-
-  @override
+  final memoDataBloc = MemoDataBloc();
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -21,7 +19,7 @@ class SettingView extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: StreamBuilder<User?>(
-            stream: viewModel.userData,
+            stream: memoDataBloc.userData,
             builder: (context, snapshot) {
               if (snapshot.data == null) {
                 return ListView(
@@ -51,9 +49,7 @@ class SettingView extends StatelessWidget {
 class UserView extends StatelessWidget {
   UserView({Key? key}) : super(key: key);
 
-  final viewModel = ViewModel();
-
-  @override
+  final memoDataBloc = MemoDataBloc();
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -70,7 +66,7 @@ class UserView extends StatelessWidget {
           ),
           const SizedBox(width: 15.0),
           StreamBuilder<User?>(
-              stream: viewModel.userData.stream,
+              stream: memoDataBloc.userData.stream,
               builder: (context, snapshot) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,7 +92,7 @@ class SettingTableViewCell extends StatelessWidget {
   SettingTableViewCell({Key? key, required this.state}) : super(key: key);
 
   final UserAccountActionState state;
-  final viewModel = SignInViewModel();
+  final userBloc = UserBloc();
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +101,7 @@ class SettingTableViewCell extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           if (state == UserAccountActionState.signOut) {
-            viewModel.logOut(context);
+            userBloc.logOut(context);
           } else {
             Navigator.push(
               context,

@@ -40,7 +40,6 @@ dependencies:
   rxdart: ^0.27.5
   uuid: ^3.0.6
   bloc: ^8.0.3
-  flutter_bloc: ^8.0.1
 
 dev_dependencies:
   flutter_test:
