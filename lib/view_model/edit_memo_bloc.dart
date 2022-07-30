@@ -1,15 +1,17 @@
 import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/database/database_manager.dart';
+import 'package:firebase_memo_app/view_model/memo_data_bloc.dart';
 import 'package:rxdart/rxdart.dart';
 
 class EditMemoBloc {
-
   static final _instance = EditMemoBloc._internal();
+
   EditMemoBloc._internal();
 
   factory EditMemoBloc() => _instance;
 
+  final memoData = MemoDataBloc();
   final _database = DatabaseManager();
   BehaviorSubject<String> memoText = BehaviorSubject<String>.seeded('');
   BehaviorSubject<Memo?> memo = BehaviorSubject<Memo?>.seeded(null);
@@ -79,10 +81,28 @@ extension EditMemoActions on EditMemoBloc {
     if (memo.value == null) {
       return false;
     }
-    return await _database.requestMemo(memo.value!, uid);
+    final result = await _database.requestMemo(memo.value!, uid);
+
+    if (result) {
+      setShareState(ShareState.request);
+      return true;
+    }
+    return false;
   }
 
   Future<bool> cancelRequestMemo() async {
-    return await _database.cancelRequestMemo(memo.value!);
+    final result = await _database.cancelRequestMemo(memo.value!);
+
+    if (result) {
+      setShareState(ShareState.none);
+      return true;
+    }
+    return false;
+  }
+
+  void setShareState(ShareState state) {
+    final newMemo = memo.value;
+    newMemo?.shareState = state;
+    memo.sink.add(newMemo);
   }
 }
