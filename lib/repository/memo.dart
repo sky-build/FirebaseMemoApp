@@ -36,6 +36,7 @@ extension UpdateConfirmStateToString on UpdateConfirmState {
 
 class Memo {
   String id;
+  String userId;
   String? friendUid;
   String text;
   Timestamp generateDate;
@@ -45,11 +46,12 @@ class Memo {
   UpdateConfirmState updateConfirm;
   String uuid;
 
-  Memo(this.id, this.friendUid, this.text, this.generateDate, this.myUpdateDate,
+  Memo(this.id, this.userId, this.friendUid, this.text, this.generateDate, this.myUpdateDate,
       this.friendUpdateDate, this.shareState, this.updateConfirm, this.uuid);
 
   Memo.fromJson(Map<String, dynamic> json, this.id)
-      : friendUid = json['friendUid'],
+      : userId = json['id'],
+        friendUid = json['friendUid'],
         text = json['text'],
         generateDate = json['generateDate'],
         myUpdateDate = json['myUpdateDate'],

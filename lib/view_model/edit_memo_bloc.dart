@@ -72,6 +72,17 @@ extension EditMemoActions on EditMemoBloc {
     if (memo.value == null) {
       return;
     }
-    await _database.shareMemo(memo.value!, uid);
+    await _database.requestMemo(memo.value!, uid);
+  }
+
+  Future<bool> requestMemoData(String uid) async {
+    if (memo.value == null) {
+      return false;
+    }
+    return await _database.requestMemo(memo.value!, uid);
+  }
+
+  Future<bool> cancelRequestMemo() async {
+    return await _database.cancelRequestMemo(memo.value!);
   }
 }

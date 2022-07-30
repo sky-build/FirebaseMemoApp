@@ -1,6 +1,7 @@
 import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/View/edit_memo/edit_memo.dart';
+import 'package:firebase_memo_app/view/share/request_memo.dart';
 import 'package:firebase_memo_app/view_model/memo_data_bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,28 @@ class ShareMemoView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('공유된 메모'),
         elevation: 0.0,
+        actions: [
+          Visibility(
+            visible: true,
+            child: TextButton(
+              child: const Text(
+                '요청된 메모',
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                // 터치했을 떄
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => RequestMemo(),
+                  ),
+                );
+                // Navigator.push(
+                //     context, MaterialPageRoute(builder: (_) => RequestMemo()));
+              },
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -33,7 +56,6 @@ class ShareMemoView extends StatelessWidget {
                     }
                     return ShareMemoTableViewCell(
                       memo: row,
-                      temp: updateData,
                     );
                   });
             }),
@@ -43,12 +65,10 @@ class ShareMemoView extends StatelessWidget {
 }
 
 class ShareMemoTableViewCell extends StatelessWidget {
-  ShareMemoTableViewCell({Key? key, required this.memo, required this.temp})
-      : super(key: key);
+  ShareMemoTableViewCell({Key? key, required this.memo}) : super(key: key);
 
   final Memo memo;
   final memoDataBloc = MemoDataBloc();
-  final bool temp;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +79,7 @@ class ShareMemoTableViewCell extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (_) => EditMemo(
-              memoType: EditMemoType.edit,
+              memoType: EditMemoType.shareData,
               memo: memo,
             ),
           ),

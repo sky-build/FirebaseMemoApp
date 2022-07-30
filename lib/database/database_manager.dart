@@ -27,10 +27,6 @@ class DatabaseManager {
   }
 
   factory DatabaseManager() => _instance;
-
-  Stream<User?> userDataChanged() {
-    return _firebaseAuthInstance.authStateChanges();
-  }
 }
 
 // 메모 추가 삭제 수정기능
@@ -85,6 +81,7 @@ extension MemoDataProcessExtension on DatabaseManager {
     await _db
         .collection("memo")
         .where('friendUid', isEqualTo: userValue.value!.uid)
+        .where('shareState', isEqualTo: ShareState.accept.getString())
         .orderBy('friendUpdateDate', descending: true) // 시간 역순으로 정렬
         .get()
         .then((event) {
@@ -100,6 +97,29 @@ extension MemoDataProcessExtension on DatabaseManager {
         }
       }
     });
+    return memoList;
+  }
+
+  Future<List<Memo>> getFriendsRequestMemoData() async {
+    List<Memo> memoList = [];
+    if (userValue.value == null) {
+      return memoList;
+    }
+
+    await _db
+        .collection("memo")
+        .where('friendUid', isEqualTo: userValue.value!.uid)
+        .where('shareState', isEqualTo: ShareState.request.getString())
+        .orderBy('friendUpdateDate', descending: true)
+        .get()
+        .then((value) {
+      for (var doc in value.docs) {
+        final data = Memo.fromJson(doc.data(), doc.id);
+        final userId = userValue.value!.uid;
+        memoList.add(data);
+      }
+    });
+
     return memoList;
   }
 
@@ -127,16 +147,6 @@ extension MemoDataProcessExtension on DatabaseManager {
         onError: (e) => print("Error updating document $e"));
   }
 
-  Future<void> shareMemo(Memo memo, String uid) async {
-    final data = _db.collection("memo").doc(memo.id);
-
-    await data.update({
-      "friendUid": uid,
-      "updateConfirm": UpdateConfirmState.friend.getString()
-    }).then((value) => print("DocumentSnapshot successfully updated!"),
-        onError: (e) => print("Error updating document $e"));
-  }
-
   Future<void> enterMemo(Memo memo, EditMemoType memoType) async {
     final data = _db.collection("memo").doc(memo.id);
     bool check = true;
@@ -153,7 +163,7 @@ extension MemoDataProcessExtension on DatabaseManager {
 
     if (check == true) {
       await data.update({"updateConfirm": 'none'}).then(
-              (value) => print("DocumentSnapshot successfully updated!"),
+          (value) => print("DocumentSnapshot successfully updated!"),
           onError: (e) => print("Error updating document $e"));
     }
   }
@@ -164,12 +174,12 @@ extension FirebaseAuthExtension on DatabaseManager {
   /// Firebase 회원가입
   Future<SignUpState> signUp(String emailAddress, String password) async {
     try {
-      final credintial =
+      final credential =
           await _firebaseAuthInstance.createUserWithEmailAndPassword(
         email: emailAddress,
         password: password,
       );
-      addUser(credintial.user);
+      addUser(credential.user);
       return SignUpState.success;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -209,6 +219,25 @@ extension FirebaseAuthExtension on DatabaseManager {
   Future<void> logOut() async {
     await _firebaseAuthInstance.signOut();
   }
+
+  Future<String> getUserEmail(String uid) async {
+    String userEmail = '';
+
+    await _db
+        .collection("user")
+        .where('uid', isEqualTo: uid)
+        .get()
+        .then((value) {
+      for (var doc in value.docs) {
+        final data = UserData.fromJson(doc.data());
+        if (data.uid == uid) {
+          userEmail = data.email;
+        }
+      }
+    });
+
+    return userEmail;
+  }
 }
 
 extension UserActionsExtension on DatabaseManager {
@@ -239,5 +268,56 @@ extension UserActionsExtension on DatabaseManager {
     });
 
     return userList;
+  }
+}
+
+extension FriendRelatedActions on DatabaseManager {
+  Future<bool> requestMemo(Memo memo, String uid) async {
+    final data = _db.collection("memo").doc(memo.id);
+    bool check = false;
+    await data.get().then((value) {
+      final memoData = Memo.fromJson(value.data()!, value.id);
+      // 메모를 공유하고 있지 않다면 요청 가능
+      if (memoData.shareState == ShareState.none) {
+        check = true;
+      }
+    });
+
+    if (check) {
+      await data.update({
+        "friendUid": uid,
+        "shareState": ShareState.request.getString(),
+      }).then((value) => print("DocumentSnapshot successfully updated!"),
+          onError: (e) => check = false);
+    }
+
+    return check;
+  }
+
+  Future<bool> responseMemo(Memo memo, bool isAccept) async {
+    bool result = false;
+    final data = _db.collection("memo").doc(memo.id);
+    final responseData = isAccept
+        ? ShareState.accept.getString()
+        : ShareState.reject.getString();
+
+    await data.update({
+      "shareState": responseData,
+    }).then((value) => result = true,
+        onError: (e) => result = false);
+
+    return result;
+  }
+
+  Future<bool> cancelRequestMemo(Memo memo) async {
+    bool result = false;
+    final data = _db.collection("memo").doc(memo.id);
+
+    await data.update({
+      "friendUid": null,
+      "shareState": "none",
+    }).then((value) => result = true, onError: (e) => result = false);
+
+    return result;
   }
 }

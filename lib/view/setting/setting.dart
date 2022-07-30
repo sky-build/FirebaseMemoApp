@@ -10,6 +10,7 @@ class SettingView extends StatelessWidget {
   SettingView({Key? key}) : super(key: key);
 
   final memoDataBloc = MemoDataBloc();
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -50,6 +51,8 @@ class UserView extends StatelessWidget {
   UserView({Key? key}) : super(key: key);
 
   final memoDataBloc = MemoDataBloc();
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),

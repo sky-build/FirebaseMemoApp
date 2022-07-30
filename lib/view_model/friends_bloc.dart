@@ -30,4 +30,8 @@ extension FriendUserExtension on FriendsBloc {
   UserData getFriendByIndex(int index) {
     return friendList.value[index];
   }
+
+  Future<String> getFriendEmail(String uid) async {
+    return await _database.getUserEmail(uid);
+  }
 }

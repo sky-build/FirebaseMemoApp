@@ -2,6 +2,7 @@ import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/view_model/edit_memo_bloc.dart';
 import 'package:firebase_memo_app/view_model/friends_bloc.dart';
+import 'package:firebase_memo_app/view_model/memo_data_bloc.dart';
 import 'package:flutter/material.dart';
 
 class EditMemo extends StatelessWidget {
@@ -26,7 +27,25 @@ class EditMemo extends StatelessWidget {
         elevation: 0.0,
         actions: [
           Visibility(
-            visible: memoType == EditMemoType.edit,
+            visible: memoType == EditMemoType.edit &&
+                editMemoBloc.memo.value!.shareState == ShareState.request,
+            child: TextButton(
+              onPressed: () async {
+                final result = await editMemoBloc.cancelRequestMemo();
+                if (result) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text('요청을 취소 했습니다.')));
+                }
+              },
+              child: const Text(
+                '요청취소',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+          Visibility(
+            visible: memoType == EditMemoType.edit &&
+                editMemoBloc.memo.value!.shareState == ShareState.none,
             child: TextButton(
               onPressed: () {
                 _showFriendEMailList(context);
@@ -85,7 +104,13 @@ class EditMemo extends StatelessWidget {
                   final row = usersBloc.getFriendByIndex(index);
                   return GestureDetector(
                     onTap: () async {
-                      await editMemoBloc.shareMemoUser(row.uid);
+                      final result =
+                          await editMemoBloc.requestMemoData(row.uid);
+                      if (result) {
+                        // ignore: use_build_context_synchronously
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('${row.email} 님에게 요청을 수행했습니다.')));
+                      }
                       Navigator.pop(context);
                     },
                     child: Padding(

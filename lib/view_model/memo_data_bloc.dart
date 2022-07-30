@@ -14,8 +14,8 @@ class MemoDataBloc {
       print('값 변경');
     });
 
-    _database.userDataChanged().listen((event) {
-      userData.sink.add(event);
+    _database.userValue.listen((value) {
+      userData.sink.add(value);
       _updateDatabase();
     });
 
@@ -27,16 +27,29 @@ class MemoDataBloc {
   factory MemoDataBloc() => _instance;
 
   final _database = DatabaseManager();
-  BehaviorSubject<List<Memo>> myMemoList = BehaviorSubject<List<Memo>>.seeded([]);
-  BehaviorSubject<List<Memo>> friendsMemoList = BehaviorSubject<List<Memo>>.seeded([]);
-  BehaviorSubject<User?> userData = BehaviorSubject<User?>.seeded(null);
+  final myMemoList = BehaviorSubject<List<Memo>>.seeded([]);
+  final friendsMemoList = BehaviorSubject<List<Memo>>.seeded([]);
+  final requestMemoList = BehaviorSubject<List<Memo>>.seeded([]);
+  final userData = BehaviorSubject<User?>.seeded(null);
 }
 
 extension MemoActions on MemoDataBloc {
   Future<void> _updateDatabase() async {
     List<Memo> memo = await _database.getMemoData();
-    myMemoList.add(memo);
+    myMemoList.sink.add(memo);
     memo = await _database.getFriendsMemoData();
-    friendsMemoList.add(memo);
+    friendsMemoList.sink.add(memo);
+    memo = await _database.getFriendsRequestMemoData();
+    requestMemoList.sink.add(memo);
+  }
+}
+
+extension ShareMemoActions on MemoDataBloc {
+  Future<void> requestMemoData(Memo memo, String uid) async {
+    await _database.requestMemo(memo, uid);
+  }
+
+  Future<bool> responseMemoData(Memo memo, bool isAccept) async {
+    return await _database.responseMemo(memo, isAccept);
   }
 }

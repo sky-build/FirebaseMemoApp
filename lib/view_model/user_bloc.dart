@@ -21,7 +21,6 @@ class UserBloc {
   final _userPW = BehaviorSubject<String>.seeded('');
 
   get userIDObservable => _userID.stream;
-
   get userPWObservable => _userID.stream;
 }
 

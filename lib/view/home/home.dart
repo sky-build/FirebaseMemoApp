@@ -113,7 +113,7 @@ class MemoTableViewCell extends StatelessWidget {
               ),
             ),
             Visibility(
-              visible: temp,
+              visible: memo.updateConfirm == UpdateConfirmState.me,
               child: const Icon(
                 IconData(0xe087, fontFamily: 'MaterialIcons'),
                 color: Colors.redAccent,
