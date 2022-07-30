@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
+import 'package:firebase_memo_app/enum/share_state.dart';
+import 'package:firebase_memo_app/enum/update_confirm_state.dart';
 import 'package:firebase_memo_app/repository/user_data.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -22,7 +24,7 @@ class DatabaseManager {
       } else {
         print('User is signed in!');
       }
-      userValue.value = user;
+      userValue.sink.add(user);
     });
   }
 
@@ -300,11 +302,14 @@ extension FriendRelatedActions on DatabaseManager {
     final responseData = isAccept
         ? ShareState.accept.getString()
         : ShareState.reject.getString();
+    final updateConfirmString = isAccept
+        ? UpdateConfirmState.friend.getString()
+        : UpdateConfirmState.none.getString();
 
     await data.update({
       "shareState": responseData,
-    }).then((value) => result = true,
-        onError: (e) => result = false);
+      "updateConfirm": updateConfirmString,
+    }).then((value) => result = true, onError: (e) => result = false);
 
     return result;
   }

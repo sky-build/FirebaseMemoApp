@@ -1,3 +1,5 @@
+import 'package:firebase_memo_app/enum/share_state.dart';
+import 'package:firebase_memo_app/enum/update_confirm_state.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
 
 extension InputValidate on String {

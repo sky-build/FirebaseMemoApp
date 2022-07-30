@@ -1,4 +1,5 @@
 import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
+import 'package:firebase_memo_app/enum/update_confirm_state.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/View/edit_memo/edit_memo.dart';
 import 'package:firebase_memo_app/view/share/request_memo.dart';

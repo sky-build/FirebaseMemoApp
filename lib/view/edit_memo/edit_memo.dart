@@ -1,4 +1,5 @@
 import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
+import 'package:firebase_memo_app/enum/share_state.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/view_model/edit_memo_bloc.dart';
 import 'package:firebase_memo_app/view_model/friends_bloc.dart';
