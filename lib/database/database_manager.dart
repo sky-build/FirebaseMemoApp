@@ -33,6 +33,7 @@ class DatabaseManager {
 
 // 메모 추가 삭제 수정기능
 extension MemoDataProcessExtension on DatabaseManager {
+  // 메모 추가
   Future<void> addData(String text) async {
     if (userValue.value == null) {
       return;
@@ -52,10 +53,11 @@ extension MemoDataProcessExtension on DatabaseManager {
 
     _db.collection("memo").add(memo);
 
-    getMemoData();
+    getMyMemoData();
   }
 
-  Future<List<Memo>> getMemoData() async {
+  // 내 메모 가져오기
+  Future<List<Memo>> getMyMemoData() async {
     List<Memo> memoList = [];
     if (userValue.value == null) {
       return memoList;
@@ -75,6 +77,7 @@ extension MemoDataProcessExtension on DatabaseManager {
     return memoList;
   }
 
+  // 친구가 공유한 메모정보 가져오기
   Future<List<Memo>> getFriendsMemoData() async {
     List<Memo> memoList = [];
     if (userValue.value == null) {
@@ -102,7 +105,8 @@ extension MemoDataProcessExtension on DatabaseManager {
     return memoList;
   }
 
-  Future<List<Memo>> getFriendsRequestMemoData() async {
+  // 나에게 요청한 메모데이터 가져오기
+  Future<List<Memo>> getRequestMemoData() async {
     List<Memo> memoList = [];
     if (userValue.value == null) {
       return memoList;
@@ -125,9 +129,9 @@ extension MemoDataProcessExtension on DatabaseManager {
     return memoList;
   }
 
+  // 메모데이터 수정
   Future<void> updateMemoData(Memo memo) async {
     final data = _db.collection("memo").doc(memo.id);
-    // 수정될 데이터 검색
 
     await data.update({
       "text": memo.text,
@@ -137,9 +141,9 @@ extension MemoDataProcessExtension on DatabaseManager {
         onError: (e) => print("Error updating document $e"));
   }
 
+  // 친구가 수정
   Future<void> updateFriendMemoData(Memo memo) async {
     final data = _db.collection("memo").doc(memo.id);
-    // 수정될 데이터 검색
 
     await data.update({
       "text": memo.text,
@@ -149,6 +153,7 @@ extension MemoDataProcessExtension on DatabaseManager {
         onError: (e) => print("Error updating document $e"));
   }
 
+  // 메모에 진입했을때 읽었다는 확인
   Future<void> enterMemo(Memo memo, EditMemoType memoType) async {
     final data = _db.collection("memo").doc(memo.id);
     bool check = true;
@@ -222,6 +227,7 @@ extension FirebaseAuthExtension on DatabaseManager {
     await _firebaseAuthInstance.signOut();
   }
 
+  // UID로 사용자 이메일 가져오기
   Future<String> getUserEmail(String uid) async {
     String userEmail = '';
 
@@ -243,6 +249,7 @@ extension FirebaseAuthExtension on DatabaseManager {
 }
 
 extension UserActionsExtension on DatabaseManager {
+  // 사용자 DB에 추가(회원가입할 때 수행)
   Future<void> addUser(User? user) async {
     if (user == null) {
       return;
@@ -253,6 +260,7 @@ extension UserActionsExtension on DatabaseManager {
     await _db.collection("user").add(userValue);
   }
 
+  // 친구정보 가져오기
   Future<List<UserData>> getFriendUsers() async {
     List<UserData> userList = [];
     if (userValue.value == null) {
@@ -274,6 +282,7 @@ extension UserActionsExtension on DatabaseManager {
 }
 
 extension FriendRelatedActions on DatabaseManager {
+  // 메모공유 요청
   Future<bool> requestMemo(Memo memo, String uid) async {
     final data = _db.collection("memo").doc(memo.id);
     bool check = false;
@@ -296,6 +305,7 @@ extension FriendRelatedActions on DatabaseManager {
     return check;
   }
 
+  // 메모공유 응답(accept, reject)
   Future<bool> responseMemo(Memo memo, bool isAccept) async {
     bool result = false;
     final data = _db.collection("memo").doc(memo.id);
@@ -314,13 +324,16 @@ extension FriendRelatedActions on DatabaseManager {
     return result;
   }
 
-  Future<bool> cancelRequestMemo(Memo memo) async {
+  // 메모공유 초기화
+  Future<bool> initRequestMemo(Memo memo) async {
     bool result = false;
     final data = _db.collection("memo").doc(memo.id);
 
     await data.update({
       "friendUid": null,
+      "friendUpdateDate": null,
       "shareState": "none",
+      "updateConfirm": UpdateConfirmState.none.getString(),
     }).then((value) => result = true, onError: (e) => result = false);
 
     return result;

@@ -35,11 +35,11 @@ class MemoDataBloc {
 
 extension MemoActions on MemoDataBloc {
   Future<void> _updateDatabase() async {
-    List<Memo> memo = await _database.getMemoData();
+    List<Memo> memo = await _database.getMyMemoData();
     myMemoList.sink.add(memo);
     memo = await _database.getFriendsMemoData();
     friendsMemoList.sink.add(memo);
-    memo = await _database.getFriendsRequestMemoData();
+    memo = await _database.getRequestMemoData();
     requestMemoList.sink.add(memo);
   }
 }

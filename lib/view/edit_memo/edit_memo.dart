@@ -29,6 +29,9 @@ class EditMemo extends StatelessWidget {
           Visibility(
               visible: memoType == EditMemoType.edit,
               child: getActionButton(context)),
+          Visibility(
+              visible: memoType == EditMemoType.shareData,
+              child: getShareButton(context)),
           TextButton(
             onPressed: () async {
               await editMemoBloc.editMemoButtonClicked(memoType);
@@ -60,6 +63,29 @@ class EditMemo extends StatelessWidget {
     );
   }
 
+  Widget getShareButton(BuildContext context) {
+    return StreamBuilder<Memo?>(
+        stream: editMemoBloc.memo,
+        builder: (context, snapshot) {
+          if (snapshot.data == null) {
+            return const CircularProgressIndicator();
+          }
+          return TextButton(
+              onPressed: () async {
+                final result = await editMemoBloc.initRequestMemo();
+                if (result) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('공유를 취소했습니다.')));
+                }
+                Navigator.pop(context);
+              },
+              child: const Text(
+                '공유취소',
+                style: TextStyle(color: Colors.white),
+              ));
+        });
+  }
+
   Widget getActionButton(BuildContext context) {
     return StreamBuilder<Memo?>(
         stream: editMemoBloc.memo,
@@ -78,7 +104,7 @@ class EditMemo extends StatelessWidget {
                   case ShareState.request:
                   case ShareState.accept:
                   case ShareState.reject:
-                    final result = await editMemoBloc.cancelRequestMemo();
+                    final result = await editMemoBloc.initRequestMemo();
                     if (result) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(shareState.getSnackBarText())));

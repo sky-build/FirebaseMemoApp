@@ -91,8 +91,8 @@ extension EditMemoActions on EditMemoBloc {
     return false;
   }
 
-  Future<bool> cancelRequestMemo() async {
-    final result = await _database.cancelRequestMemo(memo.value!);
+  Future<bool> initRequestMemo() async {
+    final result = await _database.initRequestMemo(memo.value!);
 
     if (result) {
       setShareState(ShareState.none);

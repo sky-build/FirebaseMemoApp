@@ -6,7 +6,13 @@ import 'package:rxdart/rxdart.dart';
 class FriendsBloc {
   static final _instance = FriendsBloc._internal();
   FriendsBloc._internal() {
+    // 사용자가 변경되면 friendList업데이트
     FirebaseFirestore.instance.collection('user').snapshots().listen((event) {
+      updateFriendList();
+    });
+
+    // 인증상태(로그인)가 변경되면 업데이트
+    _database.userValue.listen((value) {
       updateFriendList();
     });
   }
