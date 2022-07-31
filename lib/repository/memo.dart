@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_memo_app/enum/share_state.dart';
 import 'package:firebase_memo_app/enum/update_confirm_state.dart';
 import 'package:firebase_memo_app/extensions/extension_string.dart';
-import 'package:uuid/uuid.dart';
 
 class Memo {
   String id;
@@ -14,10 +13,9 @@ class Memo {
   Timestamp? friendUpdateDate;
   ShareState shareState;
   UpdateConfirmState updateConfirm;
-  String uuid;
 
   Memo(this.id, this.userId, this.friendUid, this.text, this.generateDate, this.myUpdateDate,
-      this.friendUpdateDate, this.shareState, this.updateConfirm, this.uuid);
+      this.friendUpdateDate, this.shareState, this.updateConfirm);
 
   Memo.fromJson(Map<String, dynamic> json, this.id)
       : userId = json['id'],
@@ -28,6 +26,5 @@ class Memo {
         friendUpdateDate = json['friendUpdateDate'],
         shareState = json['shareState'].toString().changeToShareState(),
         updateConfirm =
-            json['updateConfirm'].toString().changeToUpdateConfirmState(),
-        uuid = const Uuid().v4();
+            json['updateConfirm'].toString().changeToUpdateConfirmState();
 }

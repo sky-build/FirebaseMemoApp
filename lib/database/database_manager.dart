@@ -9,7 +9,6 @@ import 'package:rxdart/rxdart.dart';
 import 'package:firebase_memo_app/Enum/sign_in_state.dart';
 import 'package:firebase_memo_app/Enum/sign_up_state.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
-import 'package:uuid/uuid.dart';
 
 class DatabaseManager {
   static final _instance = DatabaseManager._internal();
@@ -48,7 +47,6 @@ extension MemoDataProcessExtension on DatabaseManager {
       "friendUpdateDate": null,
       "shareState": "none",
       "updateConfirm": "none",
-      "uuid": const Uuid().v4()
     };
 
     _db.collection("memo").add(memo);
