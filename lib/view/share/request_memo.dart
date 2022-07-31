@@ -1,6 +1,6 @@
 import 'package:firebase_memo_app/repository/memo.dart';
-import 'package:firebase_memo_app/view_model/friends_bloc.dart';
-import 'package:firebase_memo_app/view_model/memo_data_bloc.dart';
+import 'package:firebase_memo_app/bloc/friends_bloc.dart';
+import 'package:firebase_memo_app/bloc/memo_data_bloc.dart';
 import 'package:flutter/material.dart';
 
 class RequestMemo extends StatelessWidget {

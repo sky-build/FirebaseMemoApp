@@ -39,6 +39,7 @@ dependencies:
   firebase_auth: ^3.4.2
   rxdart: ^0.27.5
   bloc: ^8.0.3
+  flutter_bloc: ^8.0.1
 
 dev_dependencies:
   flutter_test:

@@ -41,7 +41,6 @@ extension UpdateInputValue on UserBloc {
 
 extension CheckInputFormat on UserBloc {
   String get id => _userID.value.toString();
-
   String get pw => _userPW.value.toString();
 
   bool checkInputFormat() {
@@ -54,7 +53,6 @@ extension CheckInputFormat on UserBloc {
 
 extension UserAccountActions on UserBloc {
   String get id => _userID.value.toString();
-
   String get pw => _userPW.value.toString();
 
   Future<bool> userAccountButtonClicked(

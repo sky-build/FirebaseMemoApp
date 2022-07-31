@@ -1,8 +1,8 @@
-import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
+import 'package:firebase_memo_app/enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/enum/update_confirm_state.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/View/edit_memo/edit_memo.dart';
-import 'package:firebase_memo_app/view_model/memo_data_bloc.dart';
+import 'package:firebase_memo_app/bloc/memo_data_bloc.dart';
 import 'package:flutter/material.dart';
 
 class MemoHome extends StatelessWidget {
@@ -38,16 +38,6 @@ class MemoHome extends StatelessWidget {
         child: StreamBuilder<List<Memo>>(
             stream: memoDataBloc.myMemoList,
             builder: (context, snapshot) {
-              // if (snapshot.data != null && snapshot.data!.isEmpty) {
-              //   return const Center(
-              //     child: Text(
-              //       '로그인을 먼저 해주세요.',
-              //       style: TextStyle(
-              //         fontSize: 20.0,
-              //       ),
-              //     ),
-              //   );
-              // }
               return ListView.builder(
                   itemCount: memoDataBloc.myMemoList.value.length,
                   itemBuilder: (BuildContext buildContext, int index) {

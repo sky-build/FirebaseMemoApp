@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
+import 'package:firebase_memo_app/enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/enum/share_state.dart';
 import 'package:firebase_memo_app/enum/update_confirm_state.dart';
 import 'package:firebase_memo_app/repository/user_data.dart';

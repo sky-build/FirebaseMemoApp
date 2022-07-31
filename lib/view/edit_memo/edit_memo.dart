@@ -1,8 +1,8 @@
-import 'package:firebase_memo_app/Enum/edit_memo_type.dart';
+import 'package:firebase_memo_app/enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/enum/share_state.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
-import 'package:firebase_memo_app/view_model/edit_memo_bloc.dart';
-import 'package:firebase_memo_app/view_model/friends_bloc.dart';
+import 'package:firebase_memo_app/bloc/edit_memo_bloc.dart';
+import 'package:firebase_memo_app/bloc/friends_bloc.dart';
 import 'package:flutter/material.dart';
 
 class EditMemo extends StatelessWidget {
@@ -16,6 +16,7 @@ class EditMemo extends StatelessWidget {
 
   final EditMemoType memoType;
   final TextEditingController _controller = TextEditingController(text: '');
+
   final editMemoBloc = EditMemoBloc();
   final usersBloc = FriendsBloc();
 
@@ -74,8 +75,8 @@ class EditMemo extends StatelessWidget {
               onPressed: () async {
                 final result = await editMemoBloc.initRequestMemo();
                 if (result) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('공유를 취소했습니다.')));
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text('공유를 취소했습니다.')));
                 }
                 Navigator.pop(context);
               },
@@ -88,35 +89,35 @@ class EditMemo extends StatelessWidget {
 
   Widget getActionButton(BuildContext context) {
     return StreamBuilder<Memo?>(
-        stream: editMemoBloc.memo,
-        builder: (context, snapshot) {
-          if (snapshot.data == null) {
-            return const CircularProgressIndicator();
-          }
-          final shareState =
-              snapshot.data!.shareState; // editMemoBloc.memo.value!.shareState;
-          return TextButton(
-              onPressed: () async {
-                switch (shareState) {
-                  case ShareState.none:
-                    _showFriendEMailList(context);
-                    break;
-                  case ShareState.request:
-                  case ShareState.accept:
-                  case ShareState.reject:
-                    final result = await editMemoBloc.initRequestMemo();
-                    if (result) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(shareState.getSnackBarText())));
-                    }
-                    break;
-                }
-              },
-              child: Text(
-                shareState.getActionButtonTitle(),
-                style: const TextStyle(color: Colors.white),
-              ));
-        });
+      stream: editMemoBloc.memo,
+      builder: (context, snapshot) {
+        if (snapshot.data == null) {
+          return const CircularProgressIndicator();
+        }
+        final shareState = snapshot.data!.shareState;
+        return TextButton(
+            onPressed: () async {
+              switch (shareState) {
+                case ShareState.none:
+                  _showFriendEMailList(context);
+                  break;
+                case ShareState.request:
+                case ShareState.accept:
+                case ShareState.reject:
+                  final result = await editMemoBloc.initRequestMemo();
+                  if (result) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(shareState.getSnackBarText())));
+                  }
+                  break;
+              }
+            },
+            child: Text(
+              shareState.getActionButtonTitle(),
+              style: const TextStyle(color: Colors.white),
+            ));
+      },
+    );
   }
 
   void _showFriendEMailList(BuildContext context) {
