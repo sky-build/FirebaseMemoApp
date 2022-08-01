@@ -1,17 +1,19 @@
+import 'package:firebase_memo_app/bloc/memo_data/memo_data_bloc.dart';
+import 'package:firebase_memo_app/bloc/user/user_bloc.dart';
+import 'package:firebase_memo_app/bloc/user/user_state.dart';
+import 'package:firebase_memo_app/view/setting/user_sign_view.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:firebase_memo_app/bloc/user_bloc.dart';
 import 'package:firebase_memo_app/Enum/user_account_action_state.dart';
-import 'package:firebase_memo_app/View/Setting/sign_in_view.dart';
-import 'package:firebase_memo_app/bloc/memo_data_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingView extends StatelessWidget {
   SettingView({Key? key}) : super(key: key);
 
-  final memoDataBloc = MemoDataBloc();
   @override
   Widget build(BuildContext context) {
+    final memoDataBloc = context.read<MemoDataBloc>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('설정'),
@@ -20,24 +22,21 @@ class SettingView extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: StreamBuilder<User?>(
-            stream: memoDataBloc.userData,
+            stream: memoDataBloc.state.userData,
             builder: (context, snapshot) {
               if (snapshot.data == null) {
                 return ListView(
                   children: [
                     UserView(),
-                    SettingTableViewCell(
-                        state: UserAccountActionState.signUp),
-                    SettingTableViewCell(
-                        state: UserAccountActionState.signIn),
+                    SettingTableViewCell(state: UserAccountActionState.signUp),
+                    SettingTableViewCell(state: UserAccountActionState.signIn),
                   ],
                 );
               } else {
                 return ListView(
                   children: [
                     UserView(),
-                    SettingTableViewCell(
-                        state: UserAccountActionState.signOut),
+                    SettingTableViewCell(state: UserAccountActionState.signOut),
                   ],
                 );
               }
@@ -50,10 +49,9 @@ class SettingView extends StatelessWidget {
 class UserView extends StatelessWidget {
   UserView({Key? key}) : super(key: key);
 
-  final memoDataBloc = MemoDataBloc();
-
   @override
   Widget build(BuildContext context) {
+    final memoDataBloc = context.read<MemoDataBloc>();
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -69,7 +67,7 @@ class UserView extends StatelessWidget {
           ),
           const SizedBox(width: 15.0),
           StreamBuilder<User?>(
-              stream: memoDataBloc.userData.stream,
+              stream: memoDataBloc.state.userData.stream,
               builder: (context, snapshot) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,20 +93,21 @@ class SettingTableViewCell extends StatelessWidget {
   SettingTableViewCell({Key? key, required this.state}) : super(key: key);
 
   final UserAccountActionState state;
-  final userBloc = UserBloc();
 
   @override
   Widget build(BuildContext context) {
+    final userBloc = context.read<UserBloc>();
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
       child: GestureDetector(
         onTap: () {
           if (state == UserAccountActionState.signOut) {
-            userBloc.logOut(context);
+            userBloc.state.logOut(context);
           } else {
+            userBloc.state.initTextField();
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => SignInView(state: state)),
+              MaterialPageRoute(builder: (_) => UserSignView(state: state)),
             );
           }
         },

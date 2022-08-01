@@ -1,15 +1,17 @@
+import 'package:firebase_memo_app/bloc/friends/friends_bloc.dart';
+import 'package:firebase_memo_app/bloc/friends/friends_state.dart';
+import 'package:firebase_memo_app/bloc/memo_data/memo_data_bloc.dart';
+import 'package:firebase_memo_app/bloc/memo_data/memo_data_state.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
-import 'package:firebase_memo_app/bloc/friends_bloc.dart';
-import 'package:firebase_memo_app/bloc/memo_data_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RequestMemo extends StatelessWidget {
   RequestMemo({Key? key}) : super(key: key);
 
-  final memoBloc = MemoDataBloc();
-
   @override
   Widget build(BuildContext context) {
+    final memoBloc = context.read<MemoDataBloc>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('요청된 메모'),
@@ -17,7 +19,7 @@ class RequestMemo extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: StreamBuilder<List<Memo>>(
-            stream: memoBloc.requestMemoList,
+            stream: memoBloc.state.requestMemoList,
             builder: (context, snapshot) {
               if (snapshot.data == null) {
                 return const CircularProgressIndicator();
@@ -39,12 +41,11 @@ class RequestMemoTableViewCell extends StatelessWidget {
   RequestMemoTableViewCell({Key? key, required this.memo}) : super(key: key);
 
   final Memo memo;
-  String email = '';
-  final userBloc = FriendsBloc();
-  final memoBloc = MemoDataBloc();
 
   @override
   Widget build(BuildContext context) {
+    final memoBloc = context.read<MemoDataBloc>();
+    final userBloc = context.read<FriendsBloc>();
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Row(
@@ -60,7 +61,8 @@ class RequestMemoTableViewCell extends StatelessWidget {
                   maxLines: 1,
                 ),
                 StreamBuilder<String>(
-                    stream: userBloc.getFriendEmail(memo.userId).asStream(),
+                    stream:
+                        userBloc.state.getFriendEmail(memo.userId).asStream(),
                     builder: (context, snapshot) {
                       if (snapshot.data == null) {
                         return const CircularProgressIndicator();
@@ -75,7 +77,7 @@ class RequestMemoTableViewCell extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              final result = await memoBloc.responseMemoData(memo, true);
+              final result = await memoBloc.state.responseMemoData(memo, true);
               if (result) {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text('요청을 받았습니다.')));
@@ -89,7 +91,7 @@ class RequestMemoTableViewCell extends StatelessWidget {
           const SizedBox(width: 5.0),
           ElevatedButton(
             onPressed: () async {
-              final result = await memoBloc.responseMemoData(memo, false);
+              final result = await memoBloc.state.responseMemoData(memo, false);
               if (result) {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text('요청을 거절했습니다.')));

@@ -1,24 +1,19 @@
-import 'package:firebase_memo_app/enum/edit_memo_type.dart';
-import 'package:firebase_memo_app/enum/share_state.dart';
-import 'package:firebase_memo_app/repository/memo.dart';
-import 'package:firebase_memo_app/database/database_manager.dart';
-import 'package:firebase_memo_app/bloc/memo_data_bloc.dart';
-import 'package:rxdart/rxdart.dart';
+part of 'edit_memo_bloc.dart';
 
-class EditMemoBloc {
-  static final _instance = EditMemoBloc._internal();
+class EditMemoState {
+  EditMemoState({Memo? memo}) {
+    if (memo != null) {
+      memoText.sink.add(memo.text);
+      this.memo.sink.add(memo);
+    }
+  }
 
-  EditMemoBloc._internal();
-
-  factory EditMemoBloc() => _instance;
-
-  final memoData = MemoDataBloc();
   final _database = DatabaseManager();
   BehaviorSubject<String> memoText = BehaviorSubject<String>.seeded('');
   BehaviorSubject<Memo?> memo = BehaviorSubject<Memo?>.seeded(null);
 }
 
-extension MemoDataUpdate on EditMemoBloc {
+extension MemoDataUpdate on EditMemoState {
   void setMemo(Memo? newMemo) {
     if (newMemo != null) {
       memo.sink.add(newMemo);
@@ -31,7 +26,7 @@ extension MemoDataUpdate on EditMemoBloc {
   }
 }
 
-extension EditMemoActions on EditMemoBloc {
+extension EditMemoActions on EditMemoState {
   Future<void> editMemoButtonClicked(EditMemoType memoType) async {
     switch (memoType) {
       case EditMemoType.add:
@@ -61,7 +56,10 @@ extension EditMemoActions on EditMemoBloc {
     if (memo.value == null) {
       return;
     }
-    await _database.updateFriendMemoData(memo.value!);
+    final changeMemo = memo.value!;
+    changeMemo.text = memoText.value;
+
+    await _database.updateFriendMemoData(changeMemo);
   }
 
   Future<void> enterMemo(EditMemoType memoType) async {

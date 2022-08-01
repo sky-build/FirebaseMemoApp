@@ -3,9 +3,8 @@ import 'package:firebase_memo_app/database/database_manager.dart';
 import 'package:firebase_memo_app/repository/user_data.dart';
 import 'package:rxdart/rxdart.dart';
 
-class FriendsBloc {
-  static final _instance = FriendsBloc._internal();
-  FriendsBloc._internal() {
+class FriendsState {
+  FriendsState() {
     // 사용자가 변경되면 friendList업데이트
     FirebaseFirestore.instance.collection('user').snapshots().listen((event) {
       updateFriendList();
@@ -16,14 +15,12 @@ class FriendsBloc {
       updateFriendList();
     });
   }
-    final _database = DatabaseManager();
 
-  factory FriendsBloc() => _instance;
-  
+  final _database = DatabaseManager();
   BehaviorSubject<List<UserData>> friendList = BehaviorSubject<List<UserData>>.seeded([]);
 }
 
-extension FriendUserExtension on FriendsBloc {
+extension FriendUserExtension on FriendsState {
   void updateFriendList() async {
     final userList = await _database.getFriendUsers();
     friendList.sink.add(userList);

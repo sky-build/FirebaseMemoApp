@@ -1,18 +1,20 @@
+import 'package:firebase_memo_app/bloc/edit_memo/edit_memo_bloc.dart';
+import 'package:firebase_memo_app/bloc/memo_data/memo_data_bloc.dart';
+import 'package:firebase_memo_app/bloc/memo_data/memo_data_state.dart';
 import 'package:firebase_memo_app/enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/enum/update_confirm_state.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/View/edit_memo/edit_memo.dart';
 import 'package:firebase_memo_app/view/share/request_memo.dart';
-import 'package:firebase_memo_app/bloc/memo_data_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ShareMemoView extends StatelessWidget {
   ShareMemoView({Key? key}) : super(key: key);
 
-  final memoDataBloc = MemoDataBloc();
-
   @override
   Widget build(BuildContext context) {
+    final memoDataBloc = context.read<MemoDataBloc>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('공유된 메모'),
@@ -43,21 +45,13 @@ class ShareMemoView extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: StreamBuilder<List<Memo>>(
-            stream: memoDataBloc.friendsMemoList,
+            stream: memoDataBloc.state.friendsMemoList,
             builder: (context, snapshot) {
               return ListView.builder(
-                  itemCount: memoDataBloc.friendsMemoList.value.length,
+                  itemCount: memoDataBloc.state.friendsMemoList.value.length,
                   itemBuilder: (BuildContext buildContext, int index) {
-                    final row = memoDataBloc.friendsMemoList.value[index];
-                    bool updateData;
-                    if (row.updateConfirm == UpdateConfirmState.friend) {
-                      updateData = true;
-                    } else {
-                      updateData = false;
-                    }
-                    return ShareMemoTableViewCell(
-                      memo: row,
-                    );
+                    final row = memoDataBloc.state.friendsMemoList.value[index];
+                    return ShareMemoTableViewCell(memo: row);
                   });
             }),
       ),
@@ -66,22 +60,24 @@ class ShareMemoView extends StatelessWidget {
 }
 
 class ShareMemoTableViewCell extends StatelessWidget {
-  ShareMemoTableViewCell({Key? key, required this.memo}) : super(key: key);
+  const ShareMemoTableViewCell({Key? key, required this.memo})
+      : super(key: key);
 
   final Memo memo;
-  final memoDataBloc = MemoDataBloc();
 
   @override
   Widget build(BuildContext context) {
+    final editMemoBloc = context.read<EditMemoBloc>();
     return GestureDetector(
       onTap: () {
+        editMemoBloc
+            .add(InitEditMemo(memo: memo, memoType: EditMemoType.shareData));
         // 터치했을 떄
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => EditMemo(
               memoType: EditMemoType.shareData,
-              memo: memo,
             ),
           ),
         );

@@ -1,10 +1,15 @@
 import 'package:firebase_memo_app/View/Setting/setting.dart';
 import 'package:firebase_memo_app/View/Share/share_view.dart';
 import 'package:firebase_memo_app/View/home/home.dart';
+import 'package:firebase_memo_app/bloc/edit_memo/edit_memo_bloc.dart';
+import 'package:firebase_memo_app/bloc/friends/friends_bloc.dart';
+import 'package:firebase_memo_app/bloc/memo_data/memo_data_bloc.dart';
+import 'package:firebase_memo_app/bloc/user/user_bloc.dart';
 import 'package:flutter/material.dart';
 
 // firebase
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -21,25 +26,40 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<EditMemoBloc>(
+          create: (BuildContext context) => EditMemoBloc(),
+        ),
+        BlocProvider<FriendsBloc>(
+          create: (BuildContext context) => FriendsBloc(),
+        ),
+        BlocProvider<MemoDataBloc>(
+          create: (BuildContext context) => MemoDataBloc(),
+        ),
+        BlocProvider<UserBloc>(
+          create: (BuildContext context) => UserBloc(),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          // This is the theme of your application.
+          //
+          // Try running your application with "flutter run". You'll see the
+          // application has a blue toolbar. Then, without quitting the app, try
+          // changing the primarySwatch below to Colors.green and then invoke
+          // "hot reload" (press "r" in the console where you ran "flutter run",
+          // or simply save your changes to "hot reload" in a Flutter IDE).
+          // Notice that the counter didn't reset back to zero; the application
+          // is not restarted.
+          primarySwatch: Colors.blue,
+        ),
+        home: const NavigationBar(),
       ),
-      home: const NavigationBar(),
     );
   }
 }

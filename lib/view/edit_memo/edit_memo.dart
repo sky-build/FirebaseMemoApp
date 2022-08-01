@@ -1,27 +1,22 @@
+import 'package:firebase_memo_app/bloc/edit_memo/edit_memo_bloc.dart';
+import 'package:firebase_memo_app/bloc/friends/friends_bloc.dart';
+import 'package:firebase_memo_app/bloc/friends/friends_state.dart';
 import 'package:firebase_memo_app/enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/enum/share_state.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
-import 'package:firebase_memo_app/bloc/edit_memo_bloc.dart';
-import 'package:firebase_memo_app/bloc/friends_bloc.dart';
+import 'package:firebase_memo_app/repository/user_data.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EditMemo extends StatelessWidget {
-  EditMemo({Key? key, required this.memoType, Memo? memo}) : super(key: key) {
-    _controller.text = memo?.text ?? '';
-    if (memo != null) {
-      editMemoBloc.setMemo(memo);
-      editMemoBloc.enterMemo(memoType);
-    }
-  }
+  const EditMemo({Key? key, required this.memoType}) : super(key: key);
 
   final EditMemoType memoType;
-  final TextEditingController _controller = TextEditingController(text: '');
-
-  final editMemoBloc = EditMemoBloc();
-  final usersBloc = FriendsBloc();
 
   @override
   Widget build(BuildContext context) {
+    final editMemoBloc = context.read<EditMemoBloc>();
     return Scaffold(
       appBar: AppBar(
         title: Text(memoType.getTitle()),
@@ -35,7 +30,8 @@ class EditMemo extends StatelessWidget {
               child: getShareButton(context)),
           TextButton(
             onPressed: () async {
-              await editMemoBloc.editMemoButtonClicked(memoType);
+              await editMemoBloc.state.editMemoButtonClicked(memoType);
+              // await editMemoBloc.editMemoButtonClicked(memoType);
               Navigator.of(context).pop();
             },
             child: Text(
@@ -47,33 +43,38 @@ class EditMemo extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: TextField(
-          onChanged: (text) {
-            editMemoBloc.updateText(text);
+        child: BlocBuilder<EditMemoBloc, EditMemoState>(
+          builder: (context, state) {
+            return TextFormField(
+              initialValue: state.memoText.value,
+              onChanged: (text) {
+                editMemoBloc.add(TextFieldChange(text));
+              },
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: '메모를 입력하세요',
+                border: InputBorder.none,
+              ),
+            );
           },
-          controller: _controller,
-          keyboardType: TextInputType.multiline,
-          maxLines: null,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: '메모를 입력하세요',
-            border: InputBorder.none,
-          ),
         ),
       ),
     );
   }
 
   Widget getShareButton(BuildContext context) {
+    final editMemoBloc = context.read<EditMemoBloc>();
     return StreamBuilder<Memo?>(
-        stream: editMemoBloc.memo,
+        stream: editMemoBloc.state.memo,
         builder: (context, snapshot) {
           if (snapshot.data == null) {
             return const CircularProgressIndicator();
           }
           return TextButton(
               onPressed: () async {
-                final result = await editMemoBloc.initRequestMemo();
+                final result = await editMemoBloc.state.initRequestMemo();
                 if (result) {
                   ScaffoldMessenger.of(context)
                       .showSnackBar(SnackBar(content: Text('공유를 취소했습니다.')));
@@ -88,8 +89,9 @@ class EditMemo extends StatelessWidget {
   }
 
   Widget getActionButton(BuildContext context) {
+    final editMemoBloc = context.read<EditMemoBloc>();
     return StreamBuilder<Memo?>(
-      stream: editMemoBloc.memo,
+      stream: editMemoBloc.state.memo,
       builder: (context, snapshot) {
         if (snapshot.data == null) {
           return const CircularProgressIndicator();
@@ -104,7 +106,7 @@ class EditMemo extends StatelessWidget {
                 case ShareState.request:
                 case ShareState.accept:
                 case ShareState.reject:
-                  final result = await editMemoBloc.initRequestMemo();
+                  final result = await editMemoBloc.state.initRequestMemo();
                   if (result) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(shareState.getSnackBarText())));
@@ -121,6 +123,8 @@ class EditMemo extends StatelessWidget {
   }
 
   void _showFriendEMailList(BuildContext context) {
+    final editMemoBloc = context.read<EditMemoBloc>();
+    final userBloc = context.read<FriendsBloc>();
     showDialog(
         context: context,
         builder: (BuildContext btx) {
@@ -131,28 +135,34 @@ class EditMemo extends StatelessWidget {
             content: SizedBox(
               height: 300.0,
               width: 300.0,
-              child: ListView.builder(
-                itemCount: usersBloc.getFriendCount(),
-                itemBuilder: (BuildContext context, int index) {
-                  final row = usersBloc.getFriendByIndex(index);
-                  return GestureDetector(
-                    onTap: () async {
-                      final result =
-                          await editMemoBloc.requestMemoData(row.uid);
-                      if (result) {
-                        // ignore: use_build_context_synchronously
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text('${row.email} 님에게 요청을 수행했습니다.')));
-                      }
-                      Navigator.pop(context);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(row.email),
-                    ),
-                  );
-                },
-              ),
+              child: StreamBuilder<List<UserData>>(
+                  stream: userBloc.state.friendList,
+                  builder: (context, snapshot) {
+                    return ListView.builder(
+                      itemCount: snapshot.data?.length ?? 0,
+                      itemBuilder: (BuildContext context, int index) {
+                        final row = userBloc.state.getFriendByIndex(index);
+                        return GestureDetector(
+                          onTap: () async {
+                            final result = await editMemoBloc.state
+                                .requestMemoData(row.uid);
+                            if (result) {
+                              // ignore: use_build_context_synchronously
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          '${row.email} 님에게 요청을 수행했습니다.')));
+                            }
+                            Navigator.pop(context);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(row.email),
+                          ),
+                        );
+                      },
+                    );
+                  }),
             ),
             actions: [
               ElevatedButton(

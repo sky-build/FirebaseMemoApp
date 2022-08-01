@@ -1,29 +1,24 @@
+import 'package:firebase_memo_app/bloc/user/user_bloc.dart';
+import 'package:firebase_memo_app/bloc/user/user_state.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_memo_app/Enum/user_account_action_state.dart';
-import 'package:firebase_memo_app/bloc/user_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SignInView extends StatefulWidget {
-  SignInView({Key? key, required this.state}) : super(key: key);
+class UserSignView extends StatefulWidget {
+  UserSignView({Key? key, required this.state}) : super(key: key);
   UserAccountActionState state;
 
   @override
-  State<SignInView> createState() => _SignInViewState();
+  State<UserSignView> createState() => _UserSignViewState();
 }
 
-class _SignInViewState extends State<SignInView> {
+class _UserSignViewState extends State<UserSignView> {
   bool passwordVisibleState = false;
-  final userBloc = UserBloc();
-
-  @override
-  void initState() {
-    super.initState();
-    // 텍스트필드 초기화
-    userBloc.initTextField();
-  }
 
   @override
   Widget build(BuildContext context) {
+    final userBloc = context.read<UserBloc>();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.state.getTitle()),
@@ -33,17 +28,19 @@ class _SignInViewState extends State<SignInView> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            TextField(
+            TextFormField(
+              initialValue: '',
               keyboardType: TextInputType.emailAddress,
               onChanged: (value) {
-                userBloc.updateID(value);
+                userBloc.state.updateID(value);
               },
             ),
-            TextField(
+            TextFormField(
+              initialValue: '',
               obscureText: !passwordVisibleState,
               obscuringCharacter: "*",
               onChanged: (value) {
-                userBloc.updatePW(value);
+                userBloc.state.updatePW(value);
               },
             ),
             Row(
@@ -66,7 +63,7 @@ class _SignInViewState extends State<SignInView> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final result = await userBloc.userAccountButtonClicked(
+                final result = await userBloc.state.userAccountButtonClicked(
                     context, widget.state);
                 if (result) {
                   Navigator.pop(context);

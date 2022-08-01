@@ -1,4 +1,4 @@
-import 'package:firebase_memo_app/view/setting/sign_in_view.dart';
+import 'package:firebase_memo_app/view/setting/user_sign_view.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -8,12 +8,12 @@ import 'package:firebase_memo_app/Enum/sign_up_state.dart';
 import 'package:firebase_memo_app/Extensions/extension_string.dart';
 import 'package:firebase_memo_app/Enum/user_account_action_state.dart';
 
-class UserBloc {
-  static final _instance = UserBloc._internal();
+class UserState {
+  static final _instance = UserState._internal();
 
-  UserBloc._internal();
+  UserState._internal();
 
-  factory UserBloc() => _instance;
+  factory UserState() => _instance;
 
   final _database = DatabaseManager();
 
@@ -24,7 +24,7 @@ class UserBloc {
   get userPWObservable => _userID.stream;
 }
 
-extension UpdateInputValue on UserBloc {
+extension UpdateInputValue on UserState {
   void initTextField() {
     _userID.value = '';
     _userPW.value = '';
@@ -39,7 +39,7 @@ extension UpdateInputValue on UserBloc {
   }
 }
 
-extension CheckInputFormat on UserBloc {
+extension CheckInputFormat on UserState {
   String get id => _userID.value.toString();
   String get pw => _userPW.value.toString();
 
@@ -51,7 +51,7 @@ extension CheckInputFormat on UserBloc {
   }
 }
 
-extension UserAccountActions on UserBloc {
+extension UserAccountActions on UserState {
   String get id => _userID.value.toString();
   String get pw => _userPW.value.toString();
 
@@ -82,7 +82,7 @@ extension UserAccountActions on UserBloc {
       case UserAccountActionState.signIn:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => SignInView(state: actions)),
+          MaterialPageRoute(builder: (_) => UserSignView(state: actions)),
         );
         break;
       case UserAccountActionState.signOut:
