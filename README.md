@@ -6,20 +6,19 @@
 - 메모 공유
   - 메모공유 요청
   - 메모공유 승인 or 거절
-- 로그인, 회원가입(공유할 때 회원가입 필요)
+- FirebaseAuth를 사용해 로그인, 회원가입
 
 ## 프로젝트 목표
 - Firebase를 사용해 외부 사용자와 공유할 수 있도록 구현
 - RxDart 라이브러리 사용
 - Bloc 아키텍처 적용
 
-
 ## 데이터베이스 구조
 <img width="537" alt="스크린샷 2022-08-03 오후 5 51 45" src="https://user-images.githubusercontent.com/26789278/182566855-c4f11a50-be54-433e-a3a3-53400450f2d6.png">
 
 ## Issue
-- BlocBuilder가 업데이트되지않는 문제점
-  - State를 싱글톤으로 사용하고, event로 state의 변수를 업데이트할 때 Widget이 업데이트되지 않는 문제점이 있었다.
+- BlocBuilder 업데이트 시점
+  - State를 하나의 클래스로 사용하고, event로 state의 변수를 업데이트할 때 Widget이 업데이트되지 않는 문제점이 있었다.
   - state를 업데이트하지 않고, state의 값만 변경했기 때문에 BlocBuilder에서 변수의 변경을 감지하지 못했다.
   - 아래 코드처럼 State의 BehaviorSubject 변수를 가져와서 StreamBuilder를 이용했다.
   ```Dart
@@ -32,6 +31,10 @@
        ...
       });
   ```
+- FirebaseAuth 사용자 정보 호출
+  - FirebaseAuth를 사용해 회원가입, 로그인을 진행했다.
+  - 메모공유를 하기위해 다른사용자의 정보를 받아올 수 없었다.
+  - 회원가입을 수행할 때 User 데이터베이스에 사용자의 이메일과 UID를 저장해 전체 사용자의 정보를 관리했다.
 - Firebase 데이터베이스 변경 Observe하는 방법
   ```Dart
   // 인증상태(로그인) 변경
