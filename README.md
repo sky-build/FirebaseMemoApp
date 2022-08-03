@@ -13,8 +13,9 @@
 - RxDart 라이브러리 사용
 - Bloc 아키텍처 적용
 
+
 ## 데이터베이스 구조
-<img width="652" alt="스크린샷 2022-07-31 오후 6 53 38" src="https://user-images.githubusercontent.com/26789278/182021661-f16cc2e1-aa46-40b0-ba64-cf9615ae9981.png">
+<img width="537" alt="스크린샷 2022-08-03 오후 5 51 45" src="https://user-images.githubusercontent.com/26789278/182566855-c4f11a50-be54-433e-a3a3-53400450f2d6.png">
 
 ## Issue
 - BlocBuilder가 업데이트되지않는 문제점
@@ -37,7 +38,6 @@
   FirebaseAuth.instance.authStateChanges().listen((User? user) {/*로직 처리*/});
   // 데이터베이스 변경
   FirebaseFirestore.instance.collection('memo').snapshots().listen((event) {/*로직 처리*/});
-    });
   ```
 - Extension 사용방법
   ```Dart
