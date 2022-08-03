@@ -1,4 +1,5 @@
 import 'package:firebase_memo_app/bloc/memo_data/memo_data_bloc.dart';
+import 'package:firebase_memo_app/bloc/memo_data/memo_data_state.dart';
 import 'package:firebase_memo_app/bloc/user/user_bloc.dart';
 import 'package:firebase_memo_app/bloc/user/user_state.dart';
 import 'package:firebase_memo_app/view/setting/user_sign_view.dart';
@@ -21,24 +22,33 @@ class SettingView extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: StreamBuilder<User?>(
-            stream: memoDataBloc.state.userData,
+        child: StreamBuilder<UserLoginState>(
+            stream: memoDataBloc.state.userState,
             builder: (context, snapshot) {
               if (snapshot.data == null) {
-                return ListView(
-                  children: [
-                    UserView(),
-                    SettingTableViewCell(state: UserAccountActionState.signUp),
-                    SettingTableViewCell(state: UserAccountActionState.signIn),
-                  ],
-                );
-              } else {
-                return ListView(
-                  children: [
-                    UserView(),
-                    SettingTableViewCell(state: UserAccountActionState.signOut),
-                  ],
-                );
+                return const Center(child: CircularProgressIndicator());
+              }
+              switch (snapshot.data!) {
+                case UserLoginState.none:
+                  return const Center(child: CircularProgressIndicator());
+                case UserLoginState.login:
+                  return ListView(
+                    children: [
+                      UserView(),
+                      SettingTableViewCell(
+                          state: UserAccountActionState.signOut),
+                    ],
+                  );
+                case UserLoginState.logout:
+                  return ListView(
+                    children: [
+                      UserView(),
+                      SettingTableViewCell(
+                          state: UserAccountActionState.signUp),
+                      SettingTableViewCell(
+                          state: UserAccountActionState.signIn),
+                    ],
+                  );
               }
             }),
       ),
@@ -69,15 +79,17 @@ class UserView extends StatelessWidget {
           StreamBuilder<User?>(
               stream: memoDataBloc.state.userData.stream,
               builder: (context, snapshot) {
+                final emailText = getUserString(memoDataBloc.state.userState.value, '이메일');
+                final uidText = getUserString(memoDataBloc.state.userState.value, 'uid');
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      snapshot.data?.email ?? '이름 없음',
+                      snapshot.data?.email ?? emailText,
                       style: const TextStyle(fontSize: 20.0),
                     ),
                     Text(
-                      snapshot.data?.uid ?? 'UID 없음',
+                      snapshot.data?.uid ?? uidText,
                       style: const TextStyle(fontSize: 15.0),
                     ),
                   ],
@@ -86,6 +98,13 @@ class UserView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String getUserString(UserLoginState state, String str) {
+    if (state == UserLoginState.login) {
+      return '';
+    }
+    return '$str 없음';
   }
 }
 

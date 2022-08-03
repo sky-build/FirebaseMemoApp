@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
 import 'package:firebase_memo_app/database/database_manager.dart';
 
+enum UserLoginState { none, login, logout }
+
 class MemoDataState {
   MemoDataState() {
     _updateDatabase();
@@ -12,6 +14,11 @@ class MemoDataState {
     _database.userValue.listen((value) {
       userData.sink.add(value);
       _updateDatabase();
+      if (value != null) {
+        userState.sink.add(UserLoginState.login);
+      } else {
+        userState.sink.add(UserLoginState.logout);
+      }
     });
 
     FirebaseFirestore.instance.collection('memo').snapshots().listen((event) async {
@@ -24,6 +31,7 @@ class MemoDataState {
   final friendsMemoList = BehaviorSubject<List<Memo>>.seeded([]);
   final requestMemoList = BehaviorSubject<List<Memo>>.seeded([]);
   final userData = BehaviorSubject<User?>.seeded(null);
+  final userState = BehaviorSubject<UserLoginState>.seeded(UserLoginState.none);
 }
 
 extension MemoActions on MemoDataState {

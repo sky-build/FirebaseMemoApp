@@ -15,6 +15,7 @@ class RequestMemo extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('요청된 메모'),
+        elevation: 0.0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

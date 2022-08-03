@@ -203,7 +203,6 @@ extension FirebaseAuthExtension on DatabaseManager {
   Future<SignInState> signIn(String emailAddress, String password) async {
     try {
       final user = _firebaseAuthInstance.currentUser;
-      print(user?.email!);
 
       await _firebaseAuthInstance.signInWithEmailAndPassword(
           email: emailAddress, password: password);

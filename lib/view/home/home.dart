@@ -33,7 +33,7 @@ class MemoHome extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => EditMemo(
+                            builder: (context) => const EditMemo(
                                   memoType: EditMemoType.add,
                                 )),
                       );
@@ -53,12 +53,6 @@ class MemoHome extends StatelessWidget {
                   itemCount: memoDataBloc.state.myMemoList.value.length,
                   itemBuilder: (BuildContext buildContext, int index) {
                     final row = memoDataBloc.state.myMemoList.value[index];
-                    bool updateData;
-                    if (row.updateConfirm == UpdateConfirmState.me) {
-                      updateData = true;
-                    } else {
-                      updateData = false;
-                    }
                     return MemoTableViewCell(memo: row);
                   });
             }),
@@ -82,7 +76,7 @@ class MemoTableViewCell extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => EditMemo(
+            builder: (_) => const EditMemo(
               memoType: EditMemoType.edit,
             ),
           ),
