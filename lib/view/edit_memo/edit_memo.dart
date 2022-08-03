@@ -23,22 +23,16 @@ class EditMemo extends StatelessWidget {
         elevation: 0.0,
         actions: [
           Visibility(
+            visible: memoType == EditMemoType.edit,
+            child: getDeleteButton(context),
+          ),
+          Visibility(
               visible: memoType == EditMemoType.edit,
               child: getActionButton(context)),
           Visibility(
               visible: memoType == EditMemoType.shareData,
               child: getShareButton(context)),
-          TextButton(
-            onPressed: () async {
-              await editMemoBloc.state.editMemoButtonClicked(memoType);
-              // await editMemoBloc.editMemoButtonClicked(memoType);
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              memoType.getButtonText(),
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
+          addButton(context),
         ],
       ),
       body: Padding(
@@ -61,6 +55,41 @@ class EditMemo extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+
+  Widget addButton(BuildContext context) {
+    final editMemoBloc = context.read<EditMemoBloc>();
+    return TextButton(
+      onPressed: () async {
+        final result =
+        await editMemoBloc.state.editMemoButtonClicked(memoType);
+        if (result) {
+          final text = memoType == EditMemoType.add ? '생성' : '수정';
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('메모를 $text했습니다.')));
+          Navigator.of(context).pop();
+        }
+      },
+      child: Text(
+        memoType.getButtonText(),
+        style: const TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  Widget getDeleteButton(BuildContext context) {
+    final editMemoBloc = context.read<EditMemoBloc>();
+    return TextButton(
+      onPressed: () async {
+        final result = await editMemoBloc.state.deleteDatabase();
+        if (result) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('메모를 삭제했습니다.')));
+          Navigator.pop(context);
+        }
+      },
+      child: const Text('삭제', style: TextStyle(color: Colors.white)),
     );
   }
 

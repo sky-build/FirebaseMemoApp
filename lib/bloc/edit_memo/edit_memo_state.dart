@@ -27,7 +27,7 @@ extension MemoDataUpdate on EditMemoState {
 }
 
 extension EditMemoActions on EditMemoState {
-  Future<void> editMemoButtonClicked(EditMemoType memoType) async {
+  Future<bool> editMemoButtonClicked(EditMemoType memoType) async {
     switch (memoType) {
       case EditMemoType.add:
         return await addDatabase();
@@ -38,28 +38,32 @@ extension EditMemoActions on EditMemoState {
     }
   }
 
-  Future<void> addDatabase() async {
-    await _database.addData(memoText.value);
+  Future<bool> addDatabase() async {
+    return await _database.addData(memoText.value);
   }
 
-  Future<void> updateMemoData() async {
+  Future<bool> deleteDatabase() async {
+    return await _database.deleteData(memo.value!);
+  }
+
+  Future<bool> updateMemoData() async {
     if (memo.value == null) {
-      return;
+      return false;
     }
     final changeMemo = memo.value!;
     changeMemo.text = memoText.value;
 
-    await _database.updateMemoData(changeMemo);
+    return await _database.updateMemoData(changeMemo);
   }
 
-  Future<void> updateFriendMemoData() async {
+  Future<bool> updateFriendMemoData() async {
     if (memo.value == null) {
-      return;
+      return false;
     }
     final changeMemo = memo.value!;
     changeMemo.text = memoText.value;
 
-    await _database.updateFriendMemoData(changeMemo);
+    return await _database.updateFriendMemoData(changeMemo);
   }
 
   Future<void> enterMemo(EditMemoType memoType) async {

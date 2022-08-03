@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_memo_app/bloc/edit_memo/edit_memo_bloc.dart';
 import 'package:firebase_memo_app/bloc/memo_data/memo_data_bloc.dart';
+import 'package:firebase_memo_app/bloc/memo_data/memo_data_state.dart';
 import 'package:firebase_memo_app/enum/edit_memo_type.dart';
 import 'package:firebase_memo_app/enum/update_confirm_state.dart';
 import 'package:firebase_memo_app/repository/memo.dart';
@@ -46,16 +47,32 @@ class MemoHome extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: StreamBuilder<List<Memo>>(
-            stream: memoDataBloc.state.myMemoList,
-            builder: (context, snapshot) {
-              return ListView.builder(
-                  itemCount: memoDataBloc.state.myMemoList.value.length,
-                  itemBuilder: (BuildContext buildContext, int index) {
-                    final row = memoDataBloc.state.myMemoList.value[index];
-                    return MemoTableViewCell(memo: row);
-                  });
-            }),
+        child: StreamBuilder<UserLoginState>(
+          stream: memoDataBloc.state.userState,
+          builder: (context, snapshot) {
+            if (snapshot.data == null) {
+              return const CircularProgressIndicator();
+            }
+            switch (snapshot.data!) {
+              case UserLoginState.none:
+              case UserLoginState.logout:
+                return const Center(
+                  child: Text('로그인을 먼저 수행해주세요.'),
+                );
+              case UserLoginState.login:
+                return StreamBuilder<List<Memo>>(
+                stream: memoDataBloc.state.myMemoList,
+                builder: (context, snapshot) {
+                  return ListView.builder(
+                      itemCount: memoDataBloc.state.myMemoList.value.length,
+                      itemBuilder: (BuildContext buildContext, int index) {
+                        final row = memoDataBloc.state.myMemoList.value[index];
+                        return MemoTableViewCell(memo: row);
+                      });
+                });
+            }
+          },
+        ),
       ),
     );
   }

@@ -33,10 +33,8 @@ class DatabaseManager {
 // 메모 추가 삭제 수정기능
 extension MemoDataProcessExtension on DatabaseManager {
   // 메모 추가
-  Future<void> addData(String text) async {
-    if (userValue.value == null) {
-      return;
-    }
+  Future<bool> addData(String text) async {
+    bool result = false;
 
     final memo = <String, dynamic>{
       "id": userValue.value?.uid,
@@ -49,9 +47,21 @@ extension MemoDataProcessExtension on DatabaseManager {
       "updateConfirm": "none",
     };
 
-    _db.collection("memo").add(memo);
+    _db.collection("memo").add(memo).then(
+          (doc) => result = true,
+          onError: (e) => result = false,
+        );
 
-    getMyMemoData();
+    return result;
+  }
+
+  Future<bool> deleteData(Memo memo) async {
+    bool result = false;
+    await _db.collection("memo").doc(memo.id).delete().then(
+          (doc) => result = true,
+          onError: (e) => result = false,
+        );
+    return result;
   }
 
   // 내 메모 가져오기
@@ -128,27 +138,39 @@ extension MemoDataProcessExtension on DatabaseManager {
   }
 
   // 메모데이터 수정
-  Future<void> updateMemoData(Memo memo) async {
+  Future<bool> updateMemoData(Memo memo) async {
+    bool result = false;
+
     final data = _db.collection("memo").doc(memo.id);
 
     await data.update({
       "text": memo.text,
       "myUpdateDate": Timestamp.now(),
       "updateConfirm": 'friend'
-    }).then((value) => print("DocumentSnapshot successfully updated!"),
-        onError: (e) => print("Error updating document $e"));
+    }).then(
+      (doc) => result = true,
+      onError: (e) => result = false,
+    );
+
+    return result;
   }
 
   // 친구가 수정
-  Future<void> updateFriendMemoData(Memo memo) async {
+  Future<bool> updateFriendMemoData(Memo memo) async {
+    bool result = false;
+
     final data = _db.collection("memo").doc(memo.id);
 
     await data.update({
       "text": memo.text,
       "friendUpdateDate": Timestamp.now(),
       "updateConfirm": 'me'
-    }).then((value) => print("DocumentSnapshot successfully updated!"),
-        onError: (e) => print("Error updating document $e"));
+    }).then(
+          (doc) => result = true,
+      onError: (e) => result = false,
+    );
+
+    return result;
   }
 
   // 메모에 진입했을때 읽었다는 확인

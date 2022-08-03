@@ -27,6 +27,11 @@ class EditMemoBloc extends Bloc<EditMemoEvent, EditMemoState> {
   Stream<EditMemoState> mapEventToState(
     EditMemoEvent event,
   ) async* {
-    // TODO: implement mapEventToState
+    if (event is InitEditMemo) {
+      emit(EditMemoState(memo: event.memo));
+      if (event.memo != null) {
+        state.enterMemo(event.memoType);
+      }
+    }
   }
 }

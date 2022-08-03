@@ -20,40 +20,61 @@ class ShareMemoView extends StatelessWidget {
         title: const Text('공유된 메모'),
         elevation: 0.0,
         actions: [
-          Visibility(
-            visible: true,
-            child: TextButton(
-              child: const Text(
-                '요청된 메모',
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed: () {
-                // 터치했을 떄
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => RequestMemo(),
+          StreamBuilder<UserLoginState>(
+            stream: memoDataBloc.state.userState,
+            builder: (context, snapshot) {
+              return Visibility(
+                visible: snapshot.data == UserLoginState.login,
+                child: TextButton(
+                  child: const Text(
+                    '요청된 메모',
+                    style: TextStyle(color: Colors.white),
                   ),
-                );
-                // Navigator.push(
-                //     context, MaterialPageRoute(builder: (_) => RequestMemo()));
-              },
-            ),
+                  onPressed: () {
+                    // 터치했을 떄
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => RequestMemo(),
+                      ),
+                    );
+                    // Navigator.push(
+                    //     context, MaterialPageRoute(builder: (_) => RequestMemo()));
+                  },
+                ),
+              );
+            }
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: StreamBuilder<List<Memo>>(
-            stream: memoDataBloc.state.friendsMemoList,
-            builder: (context, snapshot) {
-              return ListView.builder(
-                  itemCount: memoDataBloc.state.friendsMemoList.value.length,
-                  itemBuilder: (BuildContext buildContext, int index) {
-                    final row = memoDataBloc.state.friendsMemoList.value[index];
-                    return ShareMemoTableViewCell(memo: row);
-                  });
-            }),
+        child: StreamBuilder<UserLoginState>(
+          stream: memoDataBloc.state.userState,
+          builder: (context, snapshot) {
+            if (snapshot.data == null) {
+              return const CircularProgressIndicator();
+            }
+            switch (snapshot.data!) {
+              case UserLoginState.none:
+              case UserLoginState.logout:
+                return const Center(
+                  child: Text('로그인을 먼저 수행해주세요.'),
+                );
+              case UserLoginState.login:
+                return StreamBuilder<List<Memo>>(
+                    stream: memoDataBloc.state.friendsMemoList,
+                    builder: (context, snapshot) {
+                      return ListView.builder(
+                          itemCount: memoDataBloc.state.friendsMemoList.value.length,
+                          itemBuilder: (BuildContext buildContext, int index) {
+                            final row = memoDataBloc.state.friendsMemoList.value[index];
+                            return ShareMemoTableViewCell(memo: row);
+                          });
+                    });
+            }
+          },
+        ),
       ),
     );
   }
